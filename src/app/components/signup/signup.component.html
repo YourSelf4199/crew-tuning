@@ -1,0 +1,34 @@
+<!-- <div class="p-4 max-w-md mx-auto space-y-4">
+    <h2 class="text-xl font-semibold">Sign Up</h2>
+
+    <form *ngIf="!codeSent()" (ngSubmit)="handleSignUp()" class="space-y-2">
+      <input [(ngModel)]="email" name="email" placeholder="Email" class="border p-2 w-full" required />
+      <input [(ngModel)]="password" name="password" type="password" placeholder="Password" class="border p-2 w-full" required />
+      <button class="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Sign Up</button>
+    </form>
+
+    <form *ngIf="codeSent()" (ngSubmit)="handleConfirm()" class="space-y-2">
+      <p>We sent a confirmation code to your email. Enter it below:</p>
+      <input [(ngModel)]="code" name="code" placeholder="Confirmation Code" class="border p-2 w-full" required />
+      <button class="bg-green-600 text-white px-4 py-2 rounded" type="submit">Confirm Email</button>
+    </form>
+
+    <div *ngIf="message()" class="text-sm text-gray-600">{{ message() }}</div>
+  </div> -->
+
+  <div>
+    <h2>Sign Up</h2>
+    <input [(ngModel)]="name" placeholder="Name" type="Name" />
+    <input [(ngModel)]="email" placeholder="Email" />
+    <input [(ngModel)]="password" placeholder="Password" type="password" />
+    <button (click)="handleSignUp()">Sign Up</button>
+  </div>
+  
+  <div *ngIf="codeSent()">
+    <h3>Confirm Email</h3>
+    <input [(ngModel)]="code" placeholder="Confirmation Code" />
+    <button (click)="handleConfirm()">Confirm</button>
+  </div>
+  
+  <p>{{ message() }}</p>
+  
