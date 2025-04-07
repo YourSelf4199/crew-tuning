@@ -25,19 +25,10 @@ export class SignupComponent {
     try {
       await this.auth.signUp(this.email, this.password, this.email, this.name);
       this.codeSent.set(true);
+      await this.auth.saveUser(this.email, this.name, this.password);
       this.message.set('Signup successful. Please check your email for the confirmation code.');
     } catch (err: any) {
       this.message.set(err.message || 'Signup failed.');
-    }
-  }
-
-  async handleConfirm() {
-    try {
-      // ✅ Pass password so AuthService can sign in and insert user
-      await this.auth.confirmSignUp(this.email, this.code, this.password);
-      this.message.set('Email confirmed. You can now log in.');
-    } catch (err: any) {
-      this.message.set(err.message || 'Confirmation failed.');
     }
   }
 }

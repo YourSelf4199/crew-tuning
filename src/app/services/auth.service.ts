@@ -2,13 +2,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
   signUp,
-  confirmSignUp,
   signIn,
   fetchAuthSession,
   SignUpInput,
-  signOut
 } from 'aws-amplify/auth';
-import { jwtDecode } from 'jwt-decode';
 
 interface IdTokenPayload {
   sub: string;
@@ -23,9 +20,10 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Sign up user with Cognito
-   */
-  async signUp(username: string, password: string, email: string, name: string) {
+ * Sign up user with Cognito
+ */
+async signUp(username: string, password: string, email: string, name: string) {
+  try {
     const input: SignUpInput = {
       username,
       password,
@@ -38,48 +36,56 @@ export class AuthService {
     };
 
     const result = await signUp(input);
+    console.log('SignUp successful');
     return result;
+  } catch (error) {
+    console.error('Error signing up user:', error);
+    throw new Error('Signup failed: ' + error);
   }
+}
 
-  /**
-   * Confirm user's signup with code, then sign in and insert into Hasura
-   */
-  async confirmSignUp(username: string, code: string, password: string) {
-    const confirmResult = await confirmSignUp({
-      username,
-      confirmationCode: code
-    });
-  
-    // ✅ Clear previous session if exists
-    await signOut();
-  
-    // ✅ Now sign in
-    await signIn({ username, password });
-  
-    const token = await this.getIdToken();
-    if (!token) throw new Error('Unable to get ID token');
-  
-    const decoded = jwtDecode<{ sub: string; email: string, name: string }>(token);
-    console.log(decoded);
-    
-    const userId = decoded.sub;
-    const email = decoded.email;
-    const name = decoded.name;
-  
-    if (userId && email && name) {
-      await this.insertUserIntoHasura(userId, email, name);
+/**
+ * Then sign in and insert into Hasura
+ */
+async saveUser(email: string, name: string, password: string) {
+  try {
+    const sessionData = await fetchAuthSession();
+    const idToken = sessionData.tokens?.idToken;
+
+    if (idToken) {
+      // Decode JWT (pure TypeScript - no extra library)
+      const decoded = JSON.parse(atob(idToken.toString().split('.')[1]));
+      console.log('Decoded ID Token:', decoded);
+
+      const userId = sessionData.tokens?.idToken?.payload.sub?.toString();
+
+      if (userId) {
+        console.log('User ID:', userId);
+        await this.insertUserIntoHasura(userId, email, name);
+      } else {
+        console.error('No userId found in ID token');
+      }
+    } else {
+      console.error('No ID token found in session');
+      await signIn({
+        username: email,
+        password: password,
+      })
+      this.saveUser(email, name, password);
     }
-  
-    return confirmResult;
+  } catch (error) {
+    console.error('Error saving user:', error);
+    throw new Error('Save user failed: ' + error);
   }
+}
 
   /**
    * Insert user into Hasura with GraphQL + Cognito ID token
    */
   private async insertUserIntoHasura(userId: string, email: string, name: string) {
-    // 1. Define your GraphQL mutation as a string
+    console.log('Building Mutaion');
     const mutation = `
-      mutation InsertUser($email: String!, $sub: String!, $name: String) {
+    mutation InsertUser($email: String!, $sub: String!, $name: String) {
         insert_users_one(
           object: { email: $email, cognito_sub: $sub, name: $name },
           on_conflict: {
@@ -91,59 +97,38 @@ export class AuthService {
         }
       }
     `;
-  
-    // 2. Prepare your variables (these are the values you're passing to the GraphQL mutation)
+
     const variables = {
       email: email,  // user email
       sub: userId,   // user sub (cognito sub)
       name: name     // user name
     };
-  
-    // 3. Structure the body of the request
+
     const body = {
-      query: mutation,        // The GraphQL mutation query
-      variables: variables    // The variables to insert into the mutation
+      query: mutation,
+      variables: variables
     };
-  
-    // 4. Ensure the body is in JSON format
-    console.log('GraphQL Request Body:', this.cleanGraphQLBody(body)); 
-    console.log('GraphQL Request Body:', JSON.stringify(body));  // Log to verify the structure
-  
-    // 5. Prepare the Authorization header with the ID token
+
     const token = await this.getIdToken();
     if (!token) {
       throw new Error('Unable to get ID token');
     }
-  
+
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
-      'X-Hasura-User-Id': userId,  // Adding the sub as the user ID for Hasura
+      'X-Hasura-User-Id': userId,
     });
 
-    console.log(headers);    
-  
-    // 6. Send the request to Hasura using the HttpClient
     const hasuraUrl = 'https://immune-octopus-96.hasura.app/v1/graphql';
     try {
-      const response = await this.http.post(hasuraUrl, body, { headers }).toPromise();
-      console.log('✅ User inserted:', response);
+      const response = await this.http.post(hasuraUrl, JSON.stringify(body), { headers }).toPromise();
+      console.log('✅ User inserted:', response);      
       return response;
     } catch (error) {
       console.error('❌ Mutation failed:', error);
       throw error;
     }
-  } 
-
-  cleanGraphQLBody(body: any): any {
-    // Clean up the query by removing unnecessary newlines and spaces
-    const cleanedQuery = body.query.replace(/\s+/g, ' ').trim();
-  
-    // Return the cleaned body with the cleaned query and original variables
-    return {
-      ...body,
-      query: cleanedQuery
-    };
   }
 
   //const hasuraUrl = 'https://immune-octopus-96.hasura.app/v1/graphql';

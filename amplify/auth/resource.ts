@@ -1,5 +1,6 @@
 import { defineAuth } from '@aws-amplify/backend';
 import { preTokenGeneration } from '../functions/pre-token-generation/resource';
+import { preSignUp } from '../functions/pre-sign-up/resource';
 
 /**
  * Define and configure your auth resource
@@ -11,5 +12,6 @@ export const auth = defineAuth({
   },
   triggers: {
     preTokenGeneration,
+    preSignUp,
   },
 });
