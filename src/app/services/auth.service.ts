@@ -5,85 +5,96 @@ import {
   signIn,
   fetchAuthSession,
   SignUpInput,
+  signOut,
+  resetPassword,
+  confirmResetPassword,
+  updatePassword,
 } from 'aws-amplify/auth';
 
-interface IdTokenPayload {
-  sub: string;
-  email: string;
-  [key: string]: any;
-}
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
+  hasuraUrl = 'https://immune-octopus-96.hasura.app/v1/graphql';
+
   constructor(private http: HttpClient) {}
 
   /**
- * Sign up user with Cognito
- */
-async signUp(username: string, password: string, email: string, name: string) {
-  try {
-    const input: SignUpInput = {
-      username,
-      password,
-      options: {
-        userAttributes: {
-          email,
-          name
-        }
-      }
-    };
-
-    const result = await signUp(input);
-    console.log('SignUp successful');
-    return result;
-  } catch (error) {
-    console.error('Error signing up user:', error);
-    throw new Error('Signup failed: ' + error);
-  }
-}
-
-/**
- * Then sign in and insert into Hasura
- */
-async saveUser(email: string, name: string, password: string) {
-  try {
-    const sessionData = await fetchAuthSession();
-    const idToken = sessionData.tokens?.idToken;
-
-    if (idToken) {
-      // Decode JWT (pure TypeScript - no extra library)
-      const decoded = JSON.parse(atob(idToken.toString().split('.')[1]));
-      console.log('Decoded ID Token:', decoded);
-
-      const userId = sessionData.tokens?.idToken?.payload.sub?.toString();
-
-      if (userId) {
-        console.log('User ID:', userId);
-        await this.insertUserIntoHasura(userId, email, name);
-      } else {
-        console.error('No userId found in ID token');
-      }
-    } else {
-      console.error('No ID token found in session');
+   * Sign in user with Cognito
+   */
+  async signIn(email: string, password: string) {
+    try {
       await signIn({
         username: email,
         password: password,
-      })
-      this.saveUser(email, name, password);
+      });
+    } catch (error) {
+      console.error('Error signing in user:', error);
+      throw new Error('Signin failed: ' + error);
     }
-  } catch (error) {
-    console.error('Error saving user:', error);
-    throw new Error('Save user failed: ' + error);
   }
-}
+
+  /**
+   * Sign up user with Cognito
+   */
+  async signUp(username: string, password: string, email: string, name: string) {
+    try {
+      const input: SignUpInput = {
+        username,
+        password,
+        options: {
+          userAttributes: {
+            email,
+            name,
+          },
+        },
+      };
+
+      const result = await signUp(input);
+      console.log('SignUp successful');
+      return result;
+    } catch (error) {
+      console.error('Error signing up user:', error);
+      throw new Error('Signup failed: ' + error);
+    }
+  }
+
+  /**
+   * Then sign in and insert into Hasura
+   */
+  async saveUser(email: string, name: string, password: string) {
+    try {
+      const sessionData = await fetchAuthSession();
+      const idToken = sessionData.tokens?.idToken;
+
+      if (idToken) {
+        // Decode JWT (pure TypeScript - no extra library)
+        const decoded = JSON.parse(atob(idToken.toString().split('.')[1]));
+        console.log('Decoded ID Token:', decoded);
+
+        const userId = sessionData.tokens?.idToken?.payload.sub?.toString();
+
+        if (userId) {
+          console.log('User ID:', userId);
+          await this.insertUserIntoHasura(userId, email, name);
+        } else {
+          console.error('No userId found in ID token');
+        }
+      } else {
+        console.error('No ID token found in session');
+        this.signIn(email, password);
+        this.saveUser(email, name, password);
+      }
+    } catch (error) {
+      console.error('Error saving user:', error);
+      throw new Error('Save user failed: ' + error);
+    }
+  }
 
   /**
    * Insert user into Hasura with GraphQL + Cognito ID token
    */
   private async insertUserIntoHasura(userId: string, email: string, name: string) {
-    console.log('Building Mutaion');
     const mutation = `
     mutation InsertUser($email: String!, $sub: String!, $name: String) {
         insert_users_one(
@@ -99,14 +110,14 @@ async saveUser(email: string, name: string, password: string) {
     `;
 
     const variables = {
-      email: email,  // user email
-      sub: userId,   // user sub (cognito sub)
-      name: name     // user name
+      email: email, // user email
+      sub: userId, // user sub (cognito sub)
+      name: name, // user name
     };
 
     const body = {
       query: mutation,
-      variables: variables
+      variables: variables,
     };
 
     const token = await this.getIdToken();
@@ -116,14 +127,15 @@ async saveUser(email: string, name: string, password: string) {
 
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'X-Hasura-User-Id': userId,
     });
 
-    const hasuraUrl = 'https://immune-octopus-96.hasura.app/v1/graphql';
     try {
-      const response = await this.http.post(hasuraUrl, JSON.stringify(body), { headers }).toPromise();
-      console.log('✅ User inserted:', response);      
+      const response = await this.http
+        .post(this.hasuraUrl, JSON.stringify(body), { headers })
+        .toPromise();
+      console.log('✅ User inserted:', response);
       return response;
     } catch (error) {
       console.error('❌ Mutation failed:', error);
@@ -131,7 +143,42 @@ async saveUser(email: string, name: string, password: string) {
     }
   }
 
-  //const hasuraUrl = 'https://immune-octopus-96.hasura.app/v1/graphql';
+  async forgotPassword(email: string) {
+    const output = await resetPassword({
+      username: email,
+    });
+
+    const { nextStep } = output;
+    switch (nextStep.resetPasswordStep) {
+      case 'CONFIRM_RESET_PASSWORD_WITH_CODE':
+        const codeDeliveryDetails = nextStep.codeDeliveryDetails;
+        console.log(`Confirmation code was sent to ${codeDeliveryDetails.deliveryMedium}`);
+        // Collect the confirmation code from the user and pass to confirmResetPassword.
+        break;
+      case 'DONE':
+        console.log('Successfully reset password.');
+        break;
+    }
+  }
+
+  async confirmPasswordReset(confirmationCode: string, email: string, newPassword: string) {
+    await confirmResetPassword({
+      username: email,
+      confirmationCode: confirmationCode,
+      newPassword: newPassword,
+    });
+  }
+
+  async updatePassword(oldPassword: string, newPassword: string) {
+    await updatePassword({
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    });
+  }
+
+  async signOut() {
+    await signOut({ global: true });
+  }
 
   /**
    * Get Cognito ID token for Hasura authorization
