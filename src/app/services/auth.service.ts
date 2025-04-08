@@ -64,30 +64,35 @@ export class AuthService {
    */
   async saveUser(email: string, name: string, password: string) {
     try {
-      const sessionData = await fetchAuthSession();
-      const idToken = sessionData.tokens?.idToken;
+      let sessionData = await fetchAuthSession();
+      let idToken = sessionData.tokens?.idToken;
 
-      if (idToken) {
-        // Decode JWT (pure TypeScript - no extra library)
-        const decoded = JSON.parse(atob(idToken.toString().split('.')[1]));
-        console.log('Decoded ID Token:', decoded);
+      if (!idToken) {
+        console.warn('No ID token found, signing in...');
+        await this.signIn(email, password);
 
-        const userId = sessionData.tokens?.idToken?.payload.sub?.toString();
+        // 🔁 Try fetching session again after sign-in
+        sessionData = await fetchAuthSession();
+        idToken = sessionData.tokens?.idToken;
 
-        if (userId) {
-          console.log('User ID:', userId);
-          await this.insertUserIntoHasura(userId, email, name);
-        } else {
-          console.error('No userId found in ID token');
+        if (!idToken) {
+          throw new Error('ID token still missing after sign-in');
         }
-      } else {
-        console.error('No ID token found in session');
-        this.signIn(email, password);
-        this.saveUser(email, name, password);
       }
+
+      const decoded = JSON.parse(atob(idToken.toString().split('.')[1]));
+      console.log('Decoded ID Token:', decoded);
+
+      const userId = decoded.sub;
+      if (!userId) {
+        throw new Error('No userId found in ID token');
+      }
+
+      console.log('User ID:', userId);
+      await this.insertUserIntoHasura(userId, email, name);
     } catch (error) {
-      console.error('Error saving user:', error);
-      throw new Error('Save user failed: ' + error);
+      console.error('❌ Error saving user:', error);
+      throw new Error('Save user failed: ' + (error as any).message);
     }
   }
 
