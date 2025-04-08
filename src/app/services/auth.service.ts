@@ -1,5 +1,5 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Store } from '@ngrx/store';
 import {
   signUp,
   signIn,
@@ -10,14 +10,18 @@ import {
   confirmResetPassword,
   updatePassword,
 } from 'aws-amplify/auth';
+import { setAuthSession } from '../store/auth/auth.actions';
+import { selectIdToken, selectUserId } from '../store/auth/auth.selectors';
+import { DatabaseQueriesService } from './database-queries.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  hasuraUrl = 'https://immune-octopus-96.hasura.app/v1/graphql';
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private store: Store,
+    private databaseBase: DatabaseQueriesService,
+  ) {}
 
   /**
    * Sign in user with Cognito
@@ -28,6 +32,8 @@ export class AuthService {
         username: email,
         password: password,
       });
+
+      await this.setIdToken();
     } catch (error) {
       console.error('Error signing in user:', error);
       throw new Error('Signin failed: ' + error);
@@ -51,10 +57,8 @@ export class AuthService {
       };
 
       const result = await signUp(input);
-      console.log('SignUp successful');
       return result;
     } catch (error) {
-      console.error('Error signing up user:', error);
       throw new Error('Signup failed: ' + error);
     }
   }
@@ -64,16 +68,12 @@ export class AuthService {
    */
   async saveUser(email: string, name: string, password: string) {
     try {
-      let sessionData = await fetchAuthSession();
-      let idToken = sessionData.tokens?.idToken;
+      let idToken = this.store.select(selectIdToken);
 
       if (!idToken) {
-        console.warn('No ID token found, signing in...');
         await this.signIn(email, password);
-
-        // 🔁 Try fetching session again after sign-in
-        sessionData = await fetchAuthSession();
-        idToken = sessionData.tokens?.idToken;
+        await this.setIdToken();
+        idToken = this.store.select(selectIdToken);
 
         if (!idToken) {
           throw new Error('ID token still missing after sign-in');
@@ -83,68 +83,14 @@ export class AuthService {
       const decoded = JSON.parse(atob(idToken.toString().split('.')[1]));
       console.log('Decoded ID Token:', decoded);
 
-      const userId = decoded.sub;
+      const userId = this.store.select(selectUserId);
       if (!userId) {
         throw new Error('No userId found in ID token');
       }
 
-      console.log('User ID:', userId);
-      await this.insertUserIntoHasura(userId, email, name);
+      await this.databaseBase.insertUserIntoHasura(userId.toString(), email, name);
     } catch (error) {
-      console.error('❌ Error saving user:', error);
       throw new Error('Save user failed: ' + (error as any).message);
-    }
-  }
-
-  /**
-   * Insert user into Hasura with GraphQL + Cognito ID token
-   */
-  private async insertUserIntoHasura(userId: string, email: string, name: string) {
-    const mutation = `
-    mutation InsertUser($email: String!, $sub: String!, $name: String) {
-        insert_users_one(
-          object: { email: $email, cognito_sub: $sub, name: $name },
-          on_conflict: {
-            constraint: users_cognito_sub_key,
-            update_columns: []
-          }
-        ) {
-          id
-        }
-      }
-    `;
-
-    const variables = {
-      email: email, // user email
-      sub: userId, // user sub (cognito sub)
-      name: name, // user name
-    };
-
-    const body = {
-      query: mutation,
-      variables: variables,
-    };
-
-    const token = await this.getIdToken();
-    if (!token) {
-      throw new Error('Unable to get ID token');
-    }
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      'X-Hasura-User-Id': userId,
-    });
-
-    try {
-      const response = await this.http
-        .post(this.hasuraUrl, JSON.stringify(body), { headers })
-        .toPromise();
-      console.log('✅ User inserted:', response);
-      return response;
-    } catch (error) {
-      console.error('❌ Mutation failed:', error);
-      throw error;
     }
   }
 
@@ -182,19 +128,31 @@ export class AuthService {
   }
 
   async signOut() {
+    // Clear any local storage or session storage data
+    localStorage.clear();
+    sessionStorage.clear();
     await signOut({ global: true });
   }
 
   /**
-   * Get Cognito ID token for Hasura authorization
+   * Set Cognito ID token for Hasura authorization
    */
-  private async getIdToken(): Promise<string | null> {
+  private async setIdToken() {
     try {
       const sessionData = await fetchAuthSession();
-      return sessionData.tokens?.idToken?.toString() ?? null;
+      const idToken = sessionData?.tokens?.idToken?.toString();
+      if (!idToken) {
+        throw new Error('ID Token is missing');
+      }
+
+      this.store.dispatch(
+        setAuthSession({
+          idToken: idToken,
+          userId: sessionData?.userSub ?? '',
+        }),
+      );
     } catch (err) {
-      console.error('Failed to get ID token:', err);
-      return null;
+      console.error('Failed to set ID token:', err);
     }
   }
 }

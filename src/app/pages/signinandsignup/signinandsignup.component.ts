@@ -41,7 +41,7 @@ export class SigninandsignupComponent {
   async handleSignIn() {
     try {
       await this.auth.signIn(this.email, this.password);
-      await this.auth.saveUser(this.email, this.name, this.password);
+      //await this.auth.saveUser(this.email, this.name, this.password);
       this.router.navigate(['/dashboard']);
       this.message.set('Signin successful. Please check your email for the confirmation code.');
     } catch (err: any) {
