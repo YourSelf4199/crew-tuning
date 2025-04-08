@@ -11,7 +11,7 @@ const backend = defineBackend({
 const { cfnUserPool } = backend.auth.resources.cfnResources;
 cfnUserPool.policies = {
   passwordPolicy: {
-    minimumLength: 32,
+    minimumLength: 8,
     requireLowercase: true,
     requireNumbers: true,
     requireSymbols: true,

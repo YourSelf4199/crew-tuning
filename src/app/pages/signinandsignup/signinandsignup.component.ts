@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signinandsignup',
@@ -19,16 +20,18 @@ export class SigninandsignupComponent {
   code = '';
   confirmationCode = '';
 
-  codeSent = signal(false);
   message = signal('');
 
-  constructor(private auth: AuthService) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+  ) {}
 
   async handleSignUp() {
     try {
       await this.auth.signUp(this.email, this.password, this.email, this.name);
-      this.codeSent.set(true);
       await this.auth.saveUser(this.email, this.name, this.password);
+      this.router.navigate(['/dashboard']);
       this.message.set('Signup successful. Please check your email for the confirmation code.');
     } catch (err: any) {
       this.message.set(err.message || 'Signup failed.');
@@ -38,8 +41,8 @@ export class SigninandsignupComponent {
   async handleSignIn() {
     try {
       await this.auth.signIn(this.email, this.password);
-      this.codeSent.set(true);
-      await this.auth.saveUser(this.email, this.name, this.password);
+      //await this.auth.saveUser(this.email, this.name, this.password);
+      this.router.navigate(['/dashboard']);
       this.message.set('Signin successful. Please check your email for the confirmation code.');
     } catch (err: any) {
       this.message.set(err.message || 'Signup failed.');
