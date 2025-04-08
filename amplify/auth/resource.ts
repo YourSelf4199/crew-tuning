@@ -14,4 +14,5 @@ export const auth = defineAuth({
     preTokenGeneration,
     preSignUp,
   },
+  accountRecovery: 'EMAIL_ONLY',
 });
