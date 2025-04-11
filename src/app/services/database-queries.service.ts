@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { selectAuthState, selectAuthStateFull, selectIdToken } from '../store/auth/auth.selectors';
+import { selectAuthStateFull } from '../store/auth/auth.selectors';
 
 @Injectable({
   providedIn: 'root',
