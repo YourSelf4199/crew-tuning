@@ -1,0 +1,132 @@
+<form (ngSubmit)="onSubmit()" #vehicleSpecificForm="ngForm">
+  @if (selectedVehicle.selectedVehicleType === 'PB') {
+    <label>
+      Weight Distribution:
+      <input
+        type="number"
+        name="weight_distribution"
+        [(ngModel)]="specificBoatSettings.weight_distribution"
+        required
+      />
+    </label>
+
+    <label>
+      Rudder Angle:
+      <input type="number" name="rudder_angle" [(ngModel)]="specificBoatSettings.rudder_angle" />
+    </label>
+
+    <label>
+      Braking Power:
+      <input
+        type="number"
+        name="braking_power"
+        [(ngModel)]="specificBoatSettings.braking_power"
+        required
+      />
+    </label>
+
+    <label>
+      Buoyancy:
+      <input type="number" name="buoyancy" [(ngModel)]="specificBoatSettings.buoyancy" required />
+    </label>
+
+    <label>
+      Hull Friction:
+      <input
+        type="number"
+        name="hull_friction"
+        [(ngModel)]="specificBoatSettings.hull_friction"
+        required
+      />
+    </label>
+
+    <label>
+      Trim Tabs:
+      <input type="number" name="trim_tabs" [(ngModel)]="specificBoatSettings.trim_tabs" required />
+    </label>
+  } @else {
+    <label>
+      Aero Distribution:
+      <input
+        type="number"
+        [(ngModel)]="specificSettings.aero_distribution"
+        name="aero_distribution"
+      />
+    </label>
+
+    <label>
+      Gearbox:
+      <input type="number" [(ngModel)]="specificSettings.gearbox" name="gearbox" />
+    </label>
+
+    <label>
+      Tire Grip Front:
+      <input type="number" [(ngModel)]="specificSettings.tire_grip_front" name="tire_grip_front" />
+    </label>
+
+    <label>
+      Tire Grip Rear:
+      <input type="number" [(ngModel)]="specificSettings.tire_grip_rear" name="tire_grip_rear" />
+    </label>
+
+    <label>
+      Brake Power:
+      <input type="number" [(ngModel)]="specificSettings.brake_power" name="brake_power" />
+    </label>
+
+    <label>
+      Brake Balance:
+      <input type="number" [(ngModel)]="specificSettings.brake_balance" name="brake_balance" />
+    </label>
+
+    <label>
+      Suspension Compression Front:
+      <input type="number" [(ngModel)]="specificSettings.susp_comp_front" name="susp_comp_front" />
+    </label>
+
+    <label>
+      Suspension Rebound Front:
+      <input type="number" [(ngModel)]="specificSettings.susp_reb_front" name="susp_reb_front" />
+    </label>
+
+    <label>
+      Suspension Compression Rear:
+      <input type="number" [(ngModel)]="specificSettings.susp_comp_rear" name="susp_comp_rear" />
+    </label>
+
+    <label>
+      Suspension Rebound Rear:
+      <input type="number" [(ngModel)]="specificSettings.susp_reb_rear" name="susp_reb_rear" />
+    </label>
+
+    <label>
+      Suspension Geometry Camber Front:
+      <input
+        type="number"
+        [(ngModel)]="specificSettings.susp_geom_camber_front"
+        name="susp_geom_camber_front"
+      />
+    </label>
+
+    <label>
+      Suspension Geometry Camber Rear:
+      <input
+        type="number"
+        [(ngModel)]="specificSettings.susp_geom_camber_rear"
+        name="susp_geom_camber_rear"
+      />
+    </label>
+
+    <label>
+      Anti-roll Bar Front:
+      <input type="number" [(ngModel)]="specificSettings.arb_front" name="arb_front" />
+    </label>
+
+    <label>
+      Anti-roll Bar Rear:
+      <input type="number" [(ngModel)]="specificSettings.arb_rear" name="arb_rear" />
+    </label>
+  }
+
+  <button type="submit">Save Settings</button>
+</form>
