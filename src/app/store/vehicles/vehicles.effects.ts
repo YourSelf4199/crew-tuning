@@ -196,6 +196,9 @@ export class VehicleEffects {
                   specificSettings,
                 )
                 .pipe(
+                  tap(() => {
+                    this.store.dispatch(resetSelectedVehicle()); // 👈 dispatch reset here
+                  }),
                   map(() => updateVehicleConfigurationSuccess()), // Dispatch success action
                   catchError((error) => {
                     console.error('Error updating vehicle settings:', error);
