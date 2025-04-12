@@ -10,7 +10,7 @@
     </button>
     <h2 class="text-2xl font-bold mb-6">MyApp</h2>
     <nav class="space-y-2">
-      <a href="/dashboard" class="block hover:bg-gray-700 p-2 rounded">Home</a>
+      <a href="/dashboard" class="block hover:bg-gray-700 p-2 rounded">Your Tunings</a>
       <a href="/dashboard/add-car-tuning" class="block hover:bg-gray-700 p-2 rounded"
         >Add Car Tuning</a
       >
@@ -22,6 +22,17 @@
   <div class="flex-1 bg-gray-100 p-6">
     <h1 class="text-3xl font-bold mb-4">Dashboard</h1>
     <p>Welcome to your dashboard!</p>
+
+    <div *ngIf="vehicleConfigurations?.() as configurations">
+      <div *ngFor="let config of configurations">
+        <p>{{ config.imageAndName.name }}</p>
+        <img [src]="config.imageAndName.signedUrl" alt="Vehicle Image" loading="lazy" />
+        <p>{{ config.vehicleTypeAndCategory.code }}</p>
+        <button (click)="selectConfiguration(config)">Select</button>
+        <button (click)="cancelUpdateConfiguration()">Cancel</button>
+      </div>
+    </div>
+
     <router-outlet />
   </div>
 </div>

@@ -12,7 +12,7 @@ import {
 } from 'aws-amplify/auth';
 import { setAuthSession } from '../store/auth/auth.actions';
 import { selectIdToken, selectUserId } from '../store/auth/auth.selectors';
-import { DatabaseQueriesService } from './database-queries.service';
+import { InsertService } from './database-queries.ts/insert.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,7 @@ import { DatabaseQueriesService } from './database-queries.service';
 export class AuthService {
   constructor(
     private store: Store,
-    private databaseBase: DatabaseQueriesService,
+    private insertQueriesService: InsertService,
   ) {}
 
   /**
@@ -68,27 +68,27 @@ export class AuthService {
    */
   async saveUser(email: string, name: string, password: string) {
     try {
-      let idToken = this.store.select(selectIdToken);
+      let idToken = this.store.selectSignal(selectIdToken)();
+      console.log('First: ' + idToken);
 
       if (!idToken) {
         await this.signIn(email, password);
-        await this.setIdToken();
-        idToken = this.store.select(selectIdToken);
-
-        if (!idToken) {
-          throw new Error('ID token still missing after sign-in');
-        }
+        //await this.setIdToken();
+        idToken = this.store.selectSignal(selectIdToken)();
+        console.log('Second: ' + idToken);
       }
 
       const decoded = JSON.parse(atob(idToken.toString().split('.')[1]));
       console.log('Decoded ID Token:', decoded);
 
-      const userId = this.store.select(selectUserId);
+      const userId = this.store.selectSignal(selectUserId)();
+      console.log('userId: ' + userId);
+
       if (!userId) {
         throw new Error('No userId found in ID token');
       }
 
-      await this.databaseBase.insertUserIntoHasura(userId.toString(), email, name);
+      await this.insertQueriesService.insertUserIntoHasura(userId.toString(), email, name);
     } catch (error) {
       throw new Error('Save user failed: ' + (error as any).message);
     }
@@ -141,16 +141,17 @@ export class AuthService {
     try {
       const sessionData = await fetchAuthSession();
       const idToken = sessionData?.tokens?.idToken?.toString();
-      if (!idToken) {
-        throw new Error('ID Token is missing');
-      }
 
-      this.store.dispatch(
-        setAuthSession({
-          idToken: idToken,
-          userId: sessionData?.userSub ?? '',
-        }),
-      );
+      if (idToken && sessionData?.userSub) {
+        this.store.dispatch(
+          setAuthSession({
+            idToken: idToken,
+            userId: sessionData?.userSub,
+          }),
+        );
+
+        console.log('auth set: ');
+      }
     } catch (err) {
       console.error('Failed to set ID token:', err);
     }
