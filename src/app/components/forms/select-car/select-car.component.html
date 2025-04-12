@@ -1,0 +1,12 @@
+<div
+  *ngFor="let vehicle of vehicles"
+  (click)="onSelect(vehicle.id, vehicle.vehicle_type_code)"
+  class="cursor-pointer p-2 border rounded mb-2"
+>
+  <img [src]="vehicle.signedUrl" alt="{{ vehicle.name }}" width="100" loading="lazy" />
+  <div>
+    <strong>{{ vehicle.name }}</strong
+    ><br />
+    Type: {{ vehicle.vehicle_type_code }}
+  </div>
+</div>
