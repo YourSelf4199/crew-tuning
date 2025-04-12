@@ -183,15 +183,12 @@ export class InsertService {
     );
   }
 
-  //////////
   updateVehicleSettings(
     globalSettingsId: string,
     specificSettingsId: string,
     globalSettings: any,
     specificSettings: any,
   ): Observable<any> {
-    console.log();
-
     const updateMutation = `
       mutation UpdateVehicleSettings(
         $globalSettingsId: uuid!,
@@ -238,9 +235,6 @@ export class InsertService {
       Authorization: `Bearer ${authState().idToken}`,
     });
 
-    console.log(globalSettings);
-    console.log(specificSettings);
-
     return this.http
       .post<any>(
         this.hasuraUrl,
@@ -257,8 +251,7 @@ export class InsertService {
       )
       .pipe(
         map((response) => {
-          console.log('GraphQL response:', response); // Log the full response
-          return response.data; // Return the response data
+          return response.data;
         }),
       );
   }

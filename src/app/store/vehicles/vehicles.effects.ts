@@ -184,8 +184,6 @@ export class VehicleEffects {
     this.actions$.pipe(
       ofType(updateVehicleConfiguration), // Listen for the action
       switchMap(({ selectedVehicleId, globalSettings, specificSettings }) => {
-        console.log(specificSettings);
-
         return this.fetchQueriesService.fetchSettingsIds(selectedVehicleId).pipe(
           switchMap(({ globalSettingsId, specificSettingsId }) => {
             if (globalSettingsId && specificSettingsId) {
