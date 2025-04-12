@@ -1,0 +1,25 @@
+<form (ngSubmit)="onSubmit()" #vehicleForm="ngForm">
+  @if (selectedVehicle.selectedVehicleType !== 'PB') {
+    <label>
+      Traction Control:
+      <input type="number" [(ngModel)]="globalSettings.traction_control" name="traction_control" />
+    </label>
+
+    <label>
+      ABS:
+      <input type="number" [(ngModel)]="globalSettings.abs" name="abs" />
+    </label>
+
+    <label>
+      ESP:
+      <input type="number" [(ngModel)]="globalSettings.esp" name="esp" />
+    </label>
+  }
+
+  <label>
+    Drift Assist:
+    <input type="number" [(ngModel)]="globalSettings.drift_assist" name="drift_assist" />
+  </label>
+
+  <button type="submit">Save Settings</button>
+</form>
