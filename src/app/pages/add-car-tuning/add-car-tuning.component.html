@@ -1,1 +1,19 @@
-<p>add-car-tuning works!</p>
+@if (isUpdatingConfiguration()) {
+  @if (currentStep() === 'global') {
+    <app-global-settings></app-global-settings>
+  } @else {
+    <app-specific-settings></app-specific-settings>
+  }
+} @else {
+  <ng-container *ngIf="!hasSelectedVehicle()">
+    <app-select-car></app-select-car>
+  </ng-container>
+
+  <ng-container *ngIf="hasSelectedVehicle() && !hasGlobalSettings()">
+    <app-global-settings></app-global-settings>
+  </ng-container>
+
+  <ng-container *ngIf="hasGlobalSettings()">
+    <app-specific-settings></app-specific-settings>
+  </ng-container>
+}
