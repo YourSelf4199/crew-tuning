@@ -7,7 +7,7 @@
     <!-- Boat settings -->
     <div *ngIf="selectedVehicle.selectedVehicleType === 'PB'" class="space-y-4">
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Weight Distribution</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Weight Distribution</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -16,14 +16,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificBoatSettings.weight_distribution }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Rudder Angle</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Rudder Angle</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -32,14 +32,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificBoatSettings.rudder_angle }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Braking Power</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Braking Power</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -48,14 +48,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificBoatSettings.braking_power }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Buoyancy</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Buoyancy</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -64,14 +64,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificBoatSettings.buoyancy }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Hull Friction</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Hull Friction</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -80,14 +80,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificBoatSettings.hull_friction }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Trim Tabs</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Trim Tabs</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -96,7 +96,7 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificBoatSettings.trim_tabs }}</span>
         </div>
@@ -106,7 +106,7 @@
     <!-- Car settings -->
     <div *ngIf="selectedVehicle.selectedVehicleType !== 'PB'" class="space-y-4">
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Aero Distribution</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Aero Distribution</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -115,14 +115,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.aero_distribution }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Gearbox</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Gearbox</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -131,14 +131,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.gearbox }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Tire Grip Front</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Tire Grip Front</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -147,14 +147,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.tire_grip_front }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Tire Grip Rear</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Tire Grip Rear</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -163,14 +163,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.tire_grip_rear }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Brake Power</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Brake Power</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -179,14 +179,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.brake_power }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Brake Balance</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Brake Balance</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -195,14 +195,16 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.brake_balance }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Suspension Compression Front</label>
+        <label class="block text-sm text-gray-300 mb-1 text-center"
+          >Suspension Compression Front</label
+        >
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -211,14 +213,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.susp_comp_front }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Suspension Rebound Front</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Suspension Rebound Front</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -227,14 +229,16 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.susp_reb_front }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Suspension Compression Rear</label>
+        <label class="block text-sm text-gray-300 mb-1 text-center"
+          >Suspension Compression Rear</label
+        >
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -243,14 +247,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.susp_comp_rear }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Suspension Rebound Rear</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Suspension Rebound Rear</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -259,14 +263,16 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.susp_reb_rear }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Suspension Geometry Camber Front</label>
+        <label class="block text-sm text-gray-300 mb-1 text-center"
+          >Suspension Geometry Camber Front</label
+        >
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -275,14 +281,16 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.susp_geom_camber_front }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Suspension Geometry Camber Rear</label>
+        <label class="block text-sm text-gray-300 mb-1 text-center"
+          >Suspension Geometry Camber Rear</label
+        >
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -291,14 +299,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.susp_geom_camber_rear }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Anti-roll Bar Front</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Anti-roll Bar Front</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -307,14 +315,14 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.arb_front }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-300 mb-1">Anti-roll Bar Rear</label>
+        <label class="block text-lg text-gray-300 mb-1 text-center">Anti-roll Bar Rear</label>
         <div class="flex justify-between items-center">
           <input
             type="range"
@@ -323,7 +331,7 @@
             min="-10"
             max="10"
             step="1"
-            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+            class="range-slider w-full"
           />
           <span class="ml-4 text-white">{{ specificSettings.arb_rear }}</span>
         </div>

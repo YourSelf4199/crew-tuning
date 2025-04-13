@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { SpecificSettings } from '../../../models/VehicleSpecificSettings/SpecificSettings';
 import {
   resetSelectedVehicle,
@@ -23,33 +23,34 @@ import { Router } from '@angular/router';
   imports: [FormsModule, CommonModule],
   templateUrl: './specific-settings.component.html',
   styleUrl: './specific-settings.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class SpecificSettingsComponent implements OnInit {
   // Initialize the specificSettings model
   specificSettings: SpecificSettings = {
-    aero_distribution: null,
-    gearbox: null,
-    tire_grip_front: null,
-    tire_grip_rear: null,
-    brake_power: null,
-    brake_balance: null,
-    susp_comp_front: null,
-    susp_reb_front: null,
-    susp_comp_rear: null,
-    susp_reb_rear: null,
-    susp_geom_camber_front: null,
-    susp_geom_camber_rear: null,
-    arb_front: null,
-    arb_rear: null,
+    aero_distribution: 0,
+    gearbox: 0,
+    tire_grip_front: 0,
+    tire_grip_rear: 0,
+    brake_power: 0,
+    brake_balance: 0,
+    susp_comp_front: 0,
+    susp_reb_front: 0,
+    susp_comp_rear: 0,
+    susp_reb_rear: 0,
+    susp_geom_camber_front: 0,
+    susp_geom_camber_rear: 0,
+    arb_front: 0,
+    arb_rear: 0,
   };
 
   specificBoatSettings: Boats = {
-    weight_distribution: null,
-    rudder_angle: null,
-    braking_power: null,
-    buoyancy: null,
-    hull_friction: null,
-    trim_tabs: null,
+    weight_distribution: 0,
+    rudder_angle: 0,
+    braking_power: 0,
+    buoyancy: 0,
+    hull_friction: 0,
+    trim_tabs: 0,
   };
 
   selectedVehicle: {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { GlobalSettings } from '../../../models/VehicleGlobalSettings/GlobalSettings';
 import { Store } from '@ngrx/store';
 import {
@@ -19,13 +19,14 @@ import { Router } from '@angular/router';
   imports: [FormsModule, CommonModule],
   templateUrl: './global-settings.component.html',
   styleUrl: './global-settings.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class GlobalSettingsComponent implements OnInit {
   globalSettings: GlobalSettings = {
-    traction_control: null,
-    abs: null,
-    esp: null,
-    drift_assist: null,
+    traction_control: 0,
+    abs: 0,
+    esp: 0,
+    drift_assist: 0,
   };
 
   selectedVehicle: {
