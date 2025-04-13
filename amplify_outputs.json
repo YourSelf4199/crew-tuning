@@ -1,0 +1,66 @@
+{
+  "auth": {
+    "user_pool_id": "us-east-1_Tzjw3HRiK",
+    "aws_region": "us-east-1",
+    "user_pool_client_id": "1gt9gpscovof32hrie9hkl234g",
+    "identity_pool_id": "us-east-1:9efd9a70-270b-4393-84cb-3a7e228ad592",
+    "mfa_methods": [],
+    "standard_required_attributes": [
+      "email"
+    ],
+    "username_attributes": [
+      "email"
+    ],
+    "user_verification_types": [
+      "email"
+    ],
+    "groups": [],
+    "mfa_configuration": "NONE",
+    "password_policy": {
+      "min_length": 8,
+      "require_lowercase": true,
+      "require_numbers": true,
+      "require_symbols": true,
+      "require_uppercase": true
+    },
+    "unauthenticated_identities_enabled": true
+  },
+  "storage": {
+    "aws_region": "us-east-1",
+    "bucket_name": "amplify-crewtuning-deave--vehicleassetsbucket9122a-f0z6ljhftsn6",
+    "buckets": [
+      {
+        "name": "vehicleAssets",
+        "bucket_name": "amplify-crewtuning-deave--vehicleassetsbucket9122a-f0z6ljhftsn6",
+        "aws_region": "us-east-1",
+        "paths": {
+          "street-race/*": {
+            "authenticated": [
+              "get",
+              "list"
+            ]
+          },
+          "off-road/*": {
+            "authenticated": [
+              "get",
+              "list"
+            ]
+          },
+          "freestyle/*": {
+            "authenticated": [
+              "get",
+              "list"
+            ]
+          },
+          "pro-racing/*": {
+            "authenticated": [
+              "get",
+              "list"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "version": "1.3"
+}

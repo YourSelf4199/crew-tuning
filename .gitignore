@@ -43,5 +43,6 @@ Thumbs.db
 
 # amplify
 .amplify
-amplify_outputs*
+# Ignore all except this one
+!src/amplify_outputs.json
 amplifyconfiguration*
