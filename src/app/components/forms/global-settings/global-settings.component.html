@@ -1,0 +1,87 @@
+<div class="flex justify-center items-center bg-[#1C1C1C] min-h-full py-8">
+  <form
+    (ngSubmit)="onSubmit()"
+    #vehicleForm="ngForm"
+    class="space-y-6 bg-[#2A2A2A] p-6 rounded-2xl shadow-xl text-white max-w-2/4 w-full mx-auto border border-[#333]"
+  >
+    <div *ngIf="selectedVehicle.selectedVehicleType !== 'PB'" class="space-y-4">
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Traction Control</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="globalSettings.traction_control"
+            name="traction_control"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ globalSettings.traction_control }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">ABS</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="globalSettings.abs"
+            name="abs"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ globalSettings.abs }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">ESP</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="globalSettings.esp"
+            name="esp"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ globalSettings.esp }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-300 mb-1">Drift Assist</label>
+      <div class="flex justify-between items-center">
+        <input
+          type="range"
+          [(ngModel)]="globalSettings.drift_assist"
+          name="drift_assist"
+          min="-10"
+          max="10"
+          step="1"
+          class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+        />
+        <span class="ml-4 text-white">{{ globalSettings.drift_assist }}</span>
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
+    >
+      Save Settings
+    </button>
+
+    <button
+      (click)="cancelAction()"
+      class="w-full bg-[#FF3B3F] hover:bg-[#D32F2F] text-white font-semibold py-2 rounded-md transition duration-300"
+    >
+      Cancel
+    </button>
+  </form>
+</div>

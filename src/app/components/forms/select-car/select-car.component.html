@@ -1,0 +1,42 @@
+<!-- Sticky Cancel Button -->
+<div class="sticky top-0 z-10 bg-[#2A2A2A] p-4 rounded-md max-w-lg mx-auto mt-4">
+  <button
+    (click)="cancelAction()"
+    class="w-full bg-[#FF3B3F] hover:bg-[#D32F2F] text-white font-semibold py-2 rounded-md transition duration-300"
+  >
+    Cancel
+  </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+  <div
+    *ngFor="let vehicle of vehicles"
+    (click)="onSelect(vehicle.id, vehicle.vehicle_type_code)"
+    class="cursor-pointer p-4 bg-[#1C1C1E] text-white rounded-lg border border-[#2E2E30] transition duration-300 flex flex-col shadow-lg"
+    [ngClass]="{
+      'hover:shadow-yellow-500': isYellowCode(vehicle.vehicle_type_code),
+      'hover:shadow-blue-500': isBlueCode(vehicle.vehicle_type_code),
+    }"
+  >
+    <img
+      [src]="vehicle.signedUrl"
+      alt="{{ vehicle.name }}"
+      class="w-full h-48 object-cover rounded-md mb-3"
+      loading="lazy"
+    />
+
+    <div class="mt-auto text-center">
+      <p class="text-lg font-semibold text-[#FFD500]">{{ vehicle.name }}</p>
+      <p
+        class="text-sm"
+        [ngClass]="{
+          'text-yellow-400': isYellowCode(vehicle.vehicle_type_code),
+          'text-blue-400': isBlueCode(vehicle.vehicle_type_code),
+          'text-gray-300':
+            !isYellowCode(vehicle.vehicle_type_code) && !isBlueCode(vehicle.vehicle_type_code),
+        }"
+      >
+        Type: {{ vehicle.vehicle_type_code }}
+      </p>
+    </div>
+  </div>
+</div>

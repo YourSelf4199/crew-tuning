@@ -1,0 +1,347 @@
+<div class="flex justify-center items-center bg-[#1C1C1C] min-h-full py-8">
+  <form
+    (ngSubmit)="onSubmit()"
+    #vehicleSpecificForm="ngForm"
+    class="space-y-6 bg-[#2A2A2A] p-6 rounded-2xl shadow-xl text-white max-w-2/4 w-full mx-auto border border-[#333]"
+  >
+    <!-- Boat settings -->
+    <div *ngIf="selectedVehicle.selectedVehicleType === 'PB'" class="space-y-4">
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Weight Distribution</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificBoatSettings.weight_distribution"
+            name="weight_distribution"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificBoatSettings.weight_distribution }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Rudder Angle</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificBoatSettings.rudder_angle"
+            name="rudder_angle"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificBoatSettings.rudder_angle }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Braking Power</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificBoatSettings.braking_power"
+            name="braking_power"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificBoatSettings.braking_power }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Buoyancy</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificBoatSettings.buoyancy"
+            name="buoyancy"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificBoatSettings.buoyancy }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Hull Friction</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificBoatSettings.hull_friction"
+            name="hull_friction"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificBoatSettings.hull_friction }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Trim Tabs</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificBoatSettings.trim_tabs"
+            name="trim_tabs"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificBoatSettings.trim_tabs }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Car settings -->
+    <div *ngIf="selectedVehicle.selectedVehicleType !== 'PB'" class="space-y-4">
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Aero Distribution</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.aero_distribution"
+            name="aero_distribution"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.aero_distribution }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Gearbox</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.gearbox"
+            name="gearbox"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.gearbox }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Tire Grip Front</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.tire_grip_front"
+            name="tire_grip_front"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.tire_grip_front }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Tire Grip Rear</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.tire_grip_rear"
+            name="tire_grip_rear"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.tire_grip_rear }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Brake Power</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.brake_power"
+            name="brake_power"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.brake_power }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Brake Balance</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.brake_balance"
+            name="brake_balance"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.brake_balance }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Suspension Compression Front</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.susp_comp_front"
+            name="susp_comp_front"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.susp_comp_front }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Suspension Rebound Front</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.susp_reb_front"
+            name="susp_reb_front"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.susp_reb_front }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Suspension Compression Rear</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.susp_comp_rear"
+            name="susp_comp_rear"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.susp_comp_rear }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Suspension Rebound Rear</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.susp_reb_rear"
+            name="susp_reb_rear"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.susp_reb_rear }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Suspension Geometry Camber Front</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.susp_geom_camber_front"
+            name="susp_geom_camber_front"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.susp_geom_camber_front }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Suspension Geometry Camber Rear</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.susp_geom_camber_rear"
+            name="susp_geom_camber_rear"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.susp_geom_camber_rear }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Anti-roll Bar Front</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.arb_front"
+            name="arb_front"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.arb_front }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Anti-roll Bar Rear</label>
+        <div class="flex justify-between items-center">
+          <input
+            type="range"
+            [(ngModel)]="specificSettings.arb_rear"
+            name="arb_rear"
+            min="-10"
+            max="10"
+            step="1"
+            class="w-full h-2 bg-[#FFD500] rounded-full appearance-none"
+          />
+          <span class="ml-4 text-white">{{ specificSettings.arb_rear }}</span>
+        </div>
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
+    >
+      Save Settings
+    </button>
+
+    <button
+      (click)="cancelAction()"
+      class="w-full bg-[#FF3B3F] hover:bg-[#D32F2F] text-white font-semibold py-2 rounded-md transition duration-300"
+    >
+      Cancel
+    </button>
+  </form>
+</div>

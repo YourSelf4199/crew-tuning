@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { setAuthSession, clearAuthSession } from './auth.actions';
+import { clearAuthSession, setAuthSession } from './auth.actions';
 
 export interface AuthState {
   idToken: string;
@@ -20,4 +20,5 @@ export const authReducer = createReducer(
     idToken,
     userId,
   })),
+  on(clearAuthSession, () => initialState), // Reset state to initialState when session is cleared
 );
