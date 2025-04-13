@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, tap, map, catchError, of } from 'rxjs';
+import { Observable, tap, map, catchError, of, throwError } from 'rxjs';
 import { selectAuthStateFull } from '../../store/auth/auth.selectors';
 
 @Injectable({
@@ -40,13 +40,10 @@ export class FetchService {
       `,
         },
         {
-          headers, // ✅ This is the correct usage
+          headers,
         },
       )
-      .pipe(
-        tap((res) => console.log('GraphQL response:', res)), // 👈 Add this line
-        map((res) => res.data?.vehicle_images_names ?? []),
-      );
+      .pipe(map((res) => res.data?.vehicle_images_names ?? []));
   }
 
   getAllVehicleTypesAndCategories(): Observable<
@@ -77,7 +74,7 @@ export class FetchService {
             id
             code
             label
-            vehicle_category {
+            category {
               id
               label
               slug
@@ -90,10 +87,7 @@ export class FetchService {
           headers,
         },
       )
-      .pipe(
-        tap((res) => console.log('GraphQL response:', res)),
-        map((res) => res.data?.vehicle_types ?? []),
-      );
+      .pipe(map((res) => res.data?.vehicle_types ?? []));
   }
 
   getUserVehicleConfigurations(): Observable<any> {
@@ -135,6 +129,7 @@ export class FetchService {
           vehicle_type {
             id
             code
+            label
           }
   
           vehicle_images_name {
@@ -157,10 +152,9 @@ export class FetchService {
       userId: authState().userId,
     };
 
-    return this.http.post<any>(this.hasuraUrl, { query, variables }, { headers }).pipe(
-      tap((res) => console.log('📦 Vehicle Configurations:', res)),
-      map((res) => res.data.vehicle_configuration),
-    );
+    return this.http
+      .post<any>(this.hasuraUrl, { query, variables }, { headers })
+      .pipe(map((res) => res.data.vehicle_configuration));
   }
 
   fetchSettingsIds(

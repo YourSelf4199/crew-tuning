@@ -13,6 +13,8 @@ import {
 import { setAuthSession } from '../store/auth/auth.actions';
 import { selectIdToken, selectUserId } from '../store/auth/auth.selectors';
 import { InsertService } from './database-queries.ts/insert.service';
+import { CfnThreatIntelSet } from 'aws-cdk-lib/aws-guardduty';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +23,7 @@ export class AuthService {
   constructor(
     private store: Store,
     private insertQueriesService: InsertService,
+    private router: Router,
   ) {}
 
   /**
@@ -34,9 +37,8 @@ export class AuthService {
       });
 
       await this.setIdToken();
-    } catch (error) {
-      console.error('Error signing in user:', error);
-      throw new Error('Signin failed: ' + error);
+    } catch (error: any) {
+      if (error.name === 'UserAlreadyAuthenticatedException') this.router.navigate(['/dashboard']);
     }
   }
 
@@ -132,9 +134,9 @@ export class AuthService {
   /**
    * Set Cognito ID token for Hasura authorization
    */
-  private async setIdToken() {
+  async setIdToken() {
     try {
-      const sessionData = await fetchAuthSession();
+      const sessionData = await fetchAuthSession({ forceRefresh: true });
       const idToken = sessionData?.tokens?.idToken?.toString();
 
       if (idToken && sessionData?.userSub) {

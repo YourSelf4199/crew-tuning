@@ -1,5 +1,8 @@
 import { createReducer, on } from '@ngrx/store';
 import {
+  deleteVehicleConfiguration,
+  deleteVehicleConfigurationFailure,
+  deleteVehicleConfigurationSuccess,
   getUserVehicleConfigurationsSuccess,
   goToSpecificSettings,
   loadTypesAndCategories,
@@ -103,5 +106,18 @@ export const vehicleReducer = createReducer(
       ...state.selectedVehicle,
       step: 'specific',
     },
+  })),
+  on(deleteVehicleConfiguration, (state) => ({
+    ...state,
+    loading: true,
+  })),
+  on(deleteVehicleConfigurationSuccess, (state, { vehicleId }) => ({
+    ...state,
+    loading: false,
+  })),
+  on(deleteVehicleConfigurationFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
   })),
 );
