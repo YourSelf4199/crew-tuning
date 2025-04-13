@@ -13,7 +13,7 @@ import { SpecificSettingsComponent } from '../../components/forms/specific-setti
 
 @Component({
   selector: 'app-add-car-tuning',
-  imports: [SelectCarComponent, GlobalSettingsComponent, SpecificSettingsComponent, NgIf],
+  imports: [SelectCarComponent, GlobalSettingsComponent, SpecificSettingsComponent],
   templateUrl: './add-car-tuning.component.html',
   styleUrl: './add-car-tuning.component.css',
 })

@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-select-car',
-  imports: [NgFor, CommonModule],
+  imports: [CommonModule],
   templateUrl: './select-car.component.html',
   styleUrl: './select-car.component.css',
 })
