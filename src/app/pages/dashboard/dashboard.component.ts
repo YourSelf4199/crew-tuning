@@ -1,35 +1,21 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  OnInit,
-  Signal,
-} from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import {
-  getUserVehicleConfigurations,
-  loadTypesAndCategories,
-  loadVehicles,
-  resetSelectedVehicle,
+  deleteVehicleConfiguration,
   selectUserVehicleConfiguration,
 } from '../../store/vehicles/vehicles.actions';
-import {
-  selectAllTypesAndCategories,
-  selectAllVehicles,
-  selectUserConfigurations,
-} from '../../store/vehicles/vehicles.selectors';
+import { selectUserConfigurations } from '../../store/vehicles/vehicles.selectors';
 import { VehicleConfigurations } from '../../models/VehicleConfigurations';
-import { selectAuthStateFull } from '../../store/auth/auth.selectors';
+import { ViewGlobalSettingsComponent } from '../../components/view-global-settings/view-global-settings.component';
+import { ViewSpecificSettingsComponent } from '../../components/view-specific-settings/view-specific-settings.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, ViewGlobalSettingsComponent, ViewSpecificSettingsComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {
   vehicleConfigurations: VehicleConfigurations[] = [];
@@ -63,9 +49,15 @@ export class DashboardComponent {
 
   onCardClick(config: any) {
     this.selectedConfig = config;
+    console.log(config);
   }
 
-  cancelUpdateConfiguration() {
+  closePopUp() {
     this.selectedConfig = null;
+  }
+
+  deleteConfiguration(config: VehicleConfigurations) {
+    this.store.dispatch(deleteVehicleConfiguration({ vehicleId: config.imageAndName.id }));
+    this.closePopUp();
   }
 }
