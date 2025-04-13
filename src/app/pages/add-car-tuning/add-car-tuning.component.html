@@ -5,15 +5,15 @@
     <app-specific-settings></app-specific-settings>
   }
 } @else {
-  <ng-container *ngIf="!hasSelectedVehicle()">
+  @if (!hasSelectedVehicle()) {
     <app-select-car></app-select-car>
-  </ng-container>
+  }
 
-  <ng-container *ngIf="hasSelectedVehicle() && !hasGlobalSettings()">
+  @if (hasSelectedVehicle() && !hasGlobalSettings()) {
     <app-global-settings></app-global-settings>
-  </ng-container>
+  }
 
-  <ng-container *ngIf="hasGlobalSettings()">
+  @if (hasGlobalSettings()) {
     <app-specific-settings></app-specific-settings>
-  </ng-container>
+  }
 }
