@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, OnInit, Signal } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  OnInit,
+  Signal,
+} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import {
@@ -23,49 +29,43 @@ import { selectAuthStateFull } from '../../store/auth/auth.selectors';
   imports: [RouterModule, CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {
-  vehicleConfigurations: Signal<VehicleConfigurations[]> | undefined;
+  vehicleConfigurations: VehicleConfigurations[] = [];
+  selectedConfigId: number | null = null;
 
   constructor(
-    private authService: AuthService,
     private store: Store,
     private router: Router,
   ) {
-    this.store.select(selectAllVehicles).subscribe((vehicles) => {
-      if (vehicles.length === 0) {
-        this.store.dispatch(loadVehicles());
-      }
+    this.store.select(selectUserConfigurations).subscribe((configurations) => {
+      this.vehicleConfigurations = configurations;
     });
-
-    const types = this.store.selectSignal(selectAllTypesAndCategories)();
-    if (types.length === 0) {
-      this.store.dispatch(loadTypesAndCategories());
-    }
-
-    const authState = this.store.selectSignal(selectAuthStateFull);
-    this.store.dispatch(getUserVehicleConfigurations({ userId: authState().userId }));
-    this.vehicleConfigurations = computed(() =>
-      this.store.selectSignal(selectUserConfigurations)(),
-    );
-  }
-
-  isMenuOpen = true;
-
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-  }
-
-  handleSignOut() {
-    this.authService.signOut();
   }
 
   selectConfiguration(config: VehicleConfigurations) {
     this.store.dispatch(selectUserVehicleConfiguration({ vehicleConfiguration: config }));
-    this.router.navigate(['/dashboard/add-car-tuning']); // Adjust route as needed
+    this.router.navigate(['/add-car-tuning']); // Adjust route as needed
+  }
+
+  // Check for yellow codes
+  isYellowCode(code: string) {
+    return code === 'SR' || code === 'HC' || code === 'DF' || code === 'DG';
+  }
+
+  // Check for blue codes
+  isBlueCode(code: string): boolean {
+    return code === 'TC' || code === 'PB' || code === 'A' || code === 'AR';
+  }
+
+  selectedConfig: any = null;
+
+  onCardClick(config: any) {
+    this.selectedConfig = config;
   }
 
   cancelUpdateConfiguration() {
-    this.store.dispatch(resetSelectedVehicle());
+    this.selectedConfig = null;
   }
 }

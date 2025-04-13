@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SpecificSettings } from '../../../models/VehicleSpecificSettings/SpecificSettings';
 import {
+  resetSelectedVehicle,
   setBoatSpecificSettings,
   setSpecificSettings,
   submitSelectedVehicle,
@@ -14,10 +15,12 @@ import {
   selectSelectedVehicleState,
 } from '../../../store/vehicles/vehicles.selectors';
 import { Boats } from '../../../models/VehicleSpecificSettings/Boats';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-specific-settings',
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './specific-settings.component.html',
   styleUrl: './specific-settings.component.css',
 })
@@ -53,7 +56,10 @@ export class SpecificSettingsComponent implements OnInit {
     selectedVehicleType: string | null;
   };
 
-  constructor(private store: Store) {
+  constructor(
+    private store: Store,
+    private router: Router,
+  ) {
     this.selectedVehicle = this.store.selectSignal(selectSelectedVehicleIdAndType)();
   }
 
@@ -94,5 +100,10 @@ export class SpecificSettingsComponent implements OnInit {
 
       this.store.dispatch(submitSelectedVehicle());
     }
+  }
+
+  cancelAction() {
+    this.store.dispatch(resetSelectedVehicle());
+    this.router.navigate(['/dashboard']);
   }
 }

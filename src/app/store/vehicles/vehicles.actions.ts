@@ -47,6 +47,8 @@ export const setBoatSpecificSettings = createAction(
 
 export const submitSelectedVehicle = createAction('[Vehicle] Submit Selected Vehicle');
 
+export const submitSelectedVehicleSuccess = createAction('[Vehicle] Submit Vehicle Success');
+
 export const resetSelectedVehicle = createAction('[Vehicle] Reset Selected Vehicle');
 
 export const getUserVehicleConfigurations = createAction(

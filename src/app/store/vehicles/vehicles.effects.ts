@@ -8,6 +8,7 @@ import {
   loadVehiclesSuccess,
   resetSelectedVehicle,
   submitSelectedVehicle,
+  submitSelectedVehicleSuccess,
   updateVehicleConfiguration,
   updateVehicleConfigurationSuccess,
 } from './vehicles.actions';
@@ -111,33 +112,33 @@ export class VehicleEffects {
     ),
   );
 
-  submitSelectedVehicle$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(submitSelectedVehicle),
-        withLatestFrom(this.store.select(selectSelectedVehicleState)),
-        switchMap(([_, selectedVehicle]) =>
-          this.insertQueriesService.submitFullVehicleConfiguration(selectedVehicle).pipe(
-            tap((response) => {
-              this.store.dispatch(resetSelectedVehicle());
-            }),
-            catchError((error) => {
-              console.error('❌ Vehicle submission failed:', error);
-              return EMPTY;
-            }),
-          ),
+  submitSelectedVehicle$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(submitSelectedVehicle),
+      withLatestFrom(
+        this.store.select(selectSelectedVehicleState),
+        this.store.select(selectAuthStateFull),
+      ),
+      switchMap(([_, selectedVehicle, authState]) =>
+        this.insertQueriesService.submitFullVehicleConfiguration(selectedVehicle).pipe(
+          tap((response) => {
+            this.store.dispatch(resetSelectedVehicle());
+            this.store.dispatch(getUserVehicleConfigurations({ userId: authState.userId }));
+          }),
+          map(() => submitSelectedVehicleSuccess()),
+          catchError((error) => {
+            console.error('❌ Vehicle submission failed:', error);
+            return EMPTY;
+          }),
         ),
       ),
-    { dispatch: false },
+    ),
   );
 
   getUserVehicleConfigurations$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(loadVehiclesSuccess), // Wait for vehicles to load first
-      withLatestFrom(
-        this.store.select(selectAuthStateFull), // Get auth state for userId
-        this.store.select(selectAllVehicles), // Get all loaded vehicles
-      ),
+      ofType(loadVehiclesSuccess, submitSelectedVehicleSuccess, updateVehicleConfigurationSuccess),
+      withLatestFrom(this.store.select(selectAuthStateFull), this.store.select(selectAllVehicles)),
       switchMap(([action, authState, vehiclesWithUrls]) => {
         return this.fetchQueriesService.getUserVehicleConfigurations().pipe(
           map((configurations) => {
@@ -146,7 +147,6 @@ export class VehicleEffects {
               const matchingVehicle = vehiclesWithUrls.find(
                 (vehicle: any) => vehicle.id === config.vehicle_images_name.id,
               );
-              console.log(vehiclesWithUrls);
 
               // Use the signedUrl from the found vehicle
               const signedUrl = matchingVehicle ? matchingVehicle.signedUrl : '';
@@ -155,7 +155,7 @@ export class VehicleEffects {
                 imageAndName: {
                   id: config.vehicle_images_name.id,
                   signedUrl,
-                  name: config.vehicle_images_name,
+                  name: config.vehicle_images_name.name,
                 },
                 vehicleTypeAndCategory: {
                   id: config.vehicle_type.id,
@@ -182,8 +182,10 @@ export class VehicleEffects {
 
   updateVehicleConfiguration$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(updateVehicleConfiguration), // Listen for the action
-      switchMap(({ selectedVehicleId, globalSettings, specificSettings }) => {
+      ofType(updateVehicleConfiguration),
+      withLatestFrom(this.store.select(selectAuthStateFull)),
+      switchMap(([action, authState]) => {
+        const { selectedVehicleId, globalSettings, specificSettings } = action;
         return this.fetchQueriesService.fetchSettingsIds(selectedVehicleId).pipe(
           switchMap(({ globalSettingsId, specificSettingsId }) => {
             if (globalSettingsId && specificSettingsId) {
@@ -197,7 +199,8 @@ export class VehicleEffects {
                 )
                 .pipe(
                   tap(() => {
-                    this.store.dispatch(resetSelectedVehicle()); // 👈 dispatch reset here
+                    this.store.dispatch(resetSelectedVehicle());
+                    this.store.dispatch(getUserVehicleConfigurations({ userId: authState.userId }));
                   }),
                   map(() => updateVehicleConfigurationSuccess()), // Dispatch success action
                   catchError((error) => {

@@ -69,7 +69,6 @@ export class AuthService {
   async saveUser(email: string, name: string, password: string) {
     try {
       let idToken = this.store.selectSignal(selectIdToken)();
-      console.log('First: ' + idToken);
 
       if (!idToken) {
         await this.signIn(email, password);
@@ -78,11 +77,7 @@ export class AuthService {
         console.log('Second: ' + idToken);
       }
 
-      const decoded = JSON.parse(atob(idToken.toString().split('.')[1]));
-      console.log('Decoded ID Token:', decoded);
-
       const userId = this.store.selectSignal(selectUserId)();
-      console.log('userId: ' + userId);
 
       if (!userId) {
         throw new Error('No userId found in ID token');
@@ -149,8 +144,6 @@ export class AuthService {
             userId: sessionData?.userSub,
           }),
         );
-
-        console.log('auth set: ');
       }
     } catch (err) {
       console.error('Failed to set ID token:', err);

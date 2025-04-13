@@ -1,58 +1,54 @@
-<div class="flex justify-center items-center min-h-screen bg-gray-100">
-  <div class="bg-white p-8 rounded-lg shadow-lg w-full sm:w-96">
-    <!-- Sign Up Form -->
+<div class="flex justify-center items-center min-h-screen bg-[#1C1C1C] text-white">
+  <div class="bg-[#2A2A2A] p-8 rounded-2xl shadow-2xl w-full sm:w-96 border border-[#333]">
+    <!-- Sign Up -->
     <div *ngIf="authState === 'signup'" class="space-y-4">
-      <h2 class="text-2xl font-semibold text-center text-gray-700">Sign Up</h2>
-      <form (ngSubmit)="handleSignUp()" #signUpForm="ngForm">
-        <div class="space-y-2">
-          <label for="name" class="block text-sm text-gray-600">Name (Nickname)</label>
+      <h2 class="text-2xl font-bold text-center text-yellow-400">Sign Up</h2>
+      <form (ngSubmit)="handleSignUp()" #signUpForm="ngForm" class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-300">Name</label>
           <input
-            id="name"
-            type="name"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            type="text"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="name"
             name="name"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label for="email" class="block text-sm text-gray-600">Email</label>
+        <div>
+          <label class="block text-sm text-gray-300">Email</label>
           <input
-            id="email"
             type="email"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="email"
             name="email"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label for="password" class="block text-sm text-gray-600">Password</label>
+        <div>
+          <label class="block text-sm text-gray-300">Password</label>
           <input
-            id="password"
             type="password"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="password"
             name="password"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label for="confirmPassword" class="block text-sm text-gray-600">Confirm Password</label>
+        <div>
+          <label class="block text-sm text-gray-300">Confirm Password</label>
           <input
-            id="confirmPassword"
             type="password"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="confirmPassword"
             name="confirmPassword"
             required
           />
           <p
             *ngIf="password && confirmPassword && password !== confirmPassword"
-            class="text-sm text-red-500 mt-2"
+            class="text-sm text-red-500 mt-1"
           >
             Passwords do not match.
           </p>
@@ -60,41 +56,41 @@
 
         <button
           type="submit"
-          class="w-full py-2 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          class="w-full py-2 mt-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
           [disabled]="password !== confirmPassword || !email || !password"
         >
           Sign Up
         </button>
       </form>
 
-      <p class="text-sm text-center text-gray-600 mt-4">
+      <p class="text-sm text-center text-gray-400">
         Already have an account?
-        <a (click)="showSignIn()" class="text-blue-500 cursor-pointer">Sign In</a>
+        <span (click)="showSignIn()" class="text-yellow-400 cursor-pointer hover:underline"
+          >Sign In</span
+        >
       </p>
     </div>
 
-    <!-- Sign In Form -->
+    <!-- Sign In -->
     <div *ngIf="authState === 'signin'" class="space-y-4">
-      <h2 class="text-2xl font-semibold text-center text-gray-700">Sign In</h2>
-      <form (ngSubmit)="handleSignIn()" #signInForm="ngForm">
-        <div class="space-y-2">
-          <label for="email" class="block text-sm text-gray-600">Email</label>
+      <h2 class="text-2xl font-bold text-center text-yellow-400">Sign In</h2>
+      <form (ngSubmit)="handleSignIn()" #signInForm="ngForm" class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-300">Email</label>
           <input
-            id="email"
             type="email"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="email"
             name="email"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label for="password" class="block text-sm text-gray-600">Password</label>
+        <div>
+          <label class="block text-sm text-gray-300">Password</label>
           <input
-            id="password"
             type="password"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="password"
             name="password"
             required
@@ -103,33 +99,36 @@
 
         <button
           type="submit"
-          class="w-full py-2 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          class="w-full py-2 mt-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
         >
           Sign In
         </button>
       </form>
 
-      <p class="text-sm text-center text-gray-600 mt-4">
+      <p class="text-sm text-center text-gray-400">
         Don't have an account?
-        <a (click)="showSignUp()" class="text-blue-500 cursor-pointer">Sign Up</a>
+        <span (click)="showSignUp()" class="text-yellow-400 cursor-pointer hover:underline"
+          >Sign Up</span
+        >
       </p>
 
-      <p class="text-sm text-center text-gray-600 mt-4">
+      <p class="text-sm text-center text-gray-400">
         Forgot your password?
-        <a (click)="showForgotPassword()" class="text-blue-500 cursor-pointer">Reset</a>
+        <span (click)="showForgotPassword()" class="text-yellow-400 cursor-pointer hover:underline"
+          >Reset</span
+        >
       </p>
     </div>
 
-    <!-- Password Reset Form -->
+    <!-- Reset Password -->
     <div *ngIf="authState === 'reset'" class="space-y-4">
-      <h2 class="text-2xl font-semibold text-center text-gray-700">Reset Password</h2>
-      <form (ngSubmit)="handleForgotPassword()" #resetPasswordForm="ngForm">
-        <div class="space-y-2">
-          <label for="email" class="block text-sm text-gray-600">Email</label>
+      <h2 class="text-2xl font-bold text-center text-yellow-400">Reset Password</h2>
+      <form (ngSubmit)="handleForgotPassword()" #resetPasswordForm="ngForm" class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-300">Email</label>
           <input
-            id="email"
             type="email"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="email"
             name="email"
             required
@@ -138,56 +137,51 @@
 
         <button
           type="submit"
-          class="w-full py-2 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
         >
           Send Reset Link
         </button>
       </form>
     </div>
 
-    <!-- Password Reset Form -->
+    <!-- Confirm Reset -->
     <div *ngIf="authState === 'confirm'" class="space-y-4">
-      <h2 class="text-2xl font-semibold text-center text-gray-700">Reset Password</h2>
-      <form (ngSubmit)="handleResetPassword()" #resetPasswordForm="ngForm">
-        <div class="space-y-2">
-          <label for="confirmationCode" class="block text-sm text-gray-600"
-            >Confirmation Code</label
-          >
+      <h2 class="text-2xl font-bold text-center text-yellow-400">Confirm Reset</h2>
+      <form (ngSubmit)="handleResetPassword()" #confirmForm="ngForm" class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-300">Confirmation Code</label>
           <input
-            id="confirmationCode"
-            type="confirmationCode"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            type="text"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="confirmationCode"
             name="confirmationCode"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label for="password" class="block text-sm text-gray-600">Password</label>
+        <div>
+          <label class="block text-sm text-gray-300">New Password</label>
           <input
-            id="password"
             type="password"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="password"
             name="password"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label for="confirmPassword" class="block text-sm text-gray-600">Confirm Password</label>
+        <div>
+          <label class="block text-sm text-gray-300">Confirm Password</label>
           <input
-            id="confirmPassword"
             type="password"
-            class="w-full p-2 border border-gray-300 rounded-md"
+            class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
             [(ngModel)]="confirmPassword"
             name="confirmPassword"
             required
           />
           <p
             *ngIf="password && confirmPassword && password !== confirmPassword"
-            class="text-sm text-red-500 mt-2"
+            class="text-sm text-red-500 mt-1"
           >
             Passwords do not match.
           </p>
@@ -195,10 +189,10 @@
 
         <button
           type="submit"
-          class="w-full py-2 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          [disabled]="password !== confirmPassword || !email || !password"
+          class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
+          [disabled]="password !== confirmPassword || !confirmationCode"
         >
-          Resett Password
+          Reset Password
         </button>
       </form>
     </div>
