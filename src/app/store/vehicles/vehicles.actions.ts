@@ -80,3 +80,18 @@ export const updateVehicleConfiguration = createAction(
 export const updateVehicleConfigurationSuccess = createAction(
   '[Vehicle] Update Vehicle Configuration Success',
 );
+
+export const deleteVehicleConfiguration = createAction(
+  '[Vehicle] Delete Vehicle Configuration',
+  props<{ vehicleId: number }>(),
+);
+
+export const deleteVehicleConfigurationSuccess = createAction(
+  '[Vehicle] Delete Vehicle Configuration Success',
+  props<{ vehicleId: number }>(),
+);
+
+export const deleteVehicleConfigurationFailure = createAction(
+  '[Vehicle] Delete Vehicle Configuration Failure',
+  props<{ error: any }>(),
+);

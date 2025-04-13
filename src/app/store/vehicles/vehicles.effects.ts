@@ -1,5 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  deleteVehicleConfiguration,
+  deleteVehicleConfigurationFailure,
+  deleteVehicleConfigurationSuccess,
   getUserVehicleConfigurations,
   getUserVehicleConfigurationsSuccess,
   loadTypesAndCategories,
@@ -18,7 +21,6 @@ import {
   from,
   map,
   mergeMap,
-  Observable,
   of,
   switchMap,
   tap,
@@ -36,16 +38,17 @@ import {
 import { Store } from '@ngrx/store';
 import { FetchService } from '../../services/database-queries.ts/fetch.service';
 import { selectAuthStateFull } from '../auth/auth.selectors';
-import { GlobalSettings } from '../../models/VehicleGlobalSettings/GlobalSettings';
-import { SpecificSettings } from '../../models/VehicleSpecificSettings/SpecificSettings';
-import { HttpHeaders } from '@angular/common/http';
+import { DeleteService } from '../../services/database-queries.ts/delete.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class VehicleEffects {
   private actions$ = inject(Actions);
   private insertQueriesService = inject(InsertService);
   private fetchQueriesService = inject(FetchService);
+  private deleteQueryService = inject(DeleteService);
   private store = inject(Store);
+  private router = inject(Router);
 
   loadVehicles$ = createEffect(() =>
     this.actions$.pipe(
@@ -124,6 +127,7 @@ export class VehicleEffects {
           tap((response) => {
             this.store.dispatch(resetSelectedVehicle());
             this.store.dispatch(getUserVehicleConfigurations({ userId: authState.userId }));
+            this.router.navigate(['/dashboard']);
           }),
           map(() => submitSelectedVehicleSuccess()),
           catchError((error) => {
@@ -137,7 +141,12 @@ export class VehicleEffects {
 
   getUserVehicleConfigurations$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(loadVehiclesSuccess, submitSelectedVehicleSuccess, updateVehicleConfigurationSuccess),
+      ofType(
+        loadVehiclesSuccess,
+        submitSelectedVehicleSuccess,
+        updateVehicleConfigurationSuccess,
+        deleteVehicleConfigurationSuccess,
+      ),
       withLatestFrom(this.store.select(selectAuthStateFull), this.store.select(selectAllVehicles)),
       switchMap(([action, authState, vehiclesWithUrls]) => {
         return this.fetchQueriesService.getUserVehicleConfigurations().pipe(
@@ -160,6 +169,7 @@ export class VehicleEffects {
                 vehicleTypeAndCategory: {
                   id: config.vehicle_type.id,
                   code: config.vehicle_type.code,
+                  label: config.vehicle_type.label,
                 },
                 globalSettings: config.vehicle_global_setting,
                 specificSettings: config.vehicle_specific_setting,
@@ -216,6 +226,40 @@ export class VehicleEffects {
             console.error('Error fetching settings IDs:', error);
             return EMPTY; // Optionally dispatch a failure action
           }),
+        );
+      }),
+    ),
+  );
+
+  deleteVehicleConfiguration$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(deleteVehicleConfiguration),
+      withLatestFrom(this.store.select(selectAuthStateFull)),
+      switchMap(([action, authState]) => {
+        const { vehicleId } = action;
+        return this.fetchQueriesService.fetchSettingsIds(vehicleId).pipe(
+          switchMap(({ globalSettingsId, specificSettingsId }) => {
+            if (!globalSettingsId || !specificSettingsId) {
+              return of(
+                deleteVehicleConfigurationFailure({ error: 'Settings not found for the vehicle' }),
+              );
+            }
+
+            // Step 2: Call the deletion method after fetching the settings
+            return this.deleteQueryService
+              .deleteVehicleConfiguration(vehicleId, globalSettingsId, specificSettingsId)
+              .pipe(
+                tap(() => {
+                  // Step 3: Dispatch the refresh action to get updated vehicle configurations
+                  this.store.dispatch(getUserVehicleConfigurations({ userId: authState.userId }));
+                }),
+                map(() => deleteVehicleConfigurationSuccess({ vehicleId })),
+                catchError((error) => of(deleteVehicleConfigurationFailure({ error }))),
+              );
+          }),
+          catchError((error) =>
+            of(deleteVehicleConfigurationFailure({ error: 'Error fetching settings IDs' })),
+          ),
         );
       }),
     ),
