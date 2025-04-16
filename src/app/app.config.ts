@@ -3,38 +3,56 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
-import { provideStore } from '@ngrx/store';
-import { authReducer } from './store/auth/auth.reducer';
-import { LocalStorageConfig, localStorageSync } from 'ngrx-store-localstorage';
-import { provideEffects } from '@ngrx/effects';
-import { VehicleEffects } from './store/vehicles/vehicles.effects';
-import { vehicleReducer } from './store/vehicles/vehicles.reducer';
-
-export function localStorageSyncConfig(): LocalStorageConfig {
-  return {
-    keys: ['auth', 'vehicle'],
-    rehydrate: true,
-    checkStorageAvailability: true,
-  };
-}
-export function localStorageSyncReducer(reducer: any): any {
-  return localStorageSync(localStorageSyncConfig())(reducer);
-}
+import { APOLLO_OPTIONS, Apollo } from 'apollo-angular';
+import { HttpLink } from 'apollo-angular/http';
+import { InMemoryCache } from '@apollo/client/core';
+import { fetchAuthSession } from 'aws-amplify/auth';
+import { HttpHeaders } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
-    provideStore(
-      {
-        auth: authReducer,
-        vehicle: vehicleReducer,
+    {
+      provide: APOLLO_OPTIONS,
+      useFactory: async (httpLink: HttpLink) => {
+        // Get the current auth session
+        const session = await fetchAuthSession();
+        const idToken = session.tokens?.idToken?.toString() || '';
+        const userId = session.tokens?.idToken?.payload?.sub || '';
+
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${idToken}`,
+          'X-Hasura-User-Id': userId,
+          'Content-Type': 'application/json',
+        });
+
+        return {
+          cache: new InMemoryCache(),
+          link: httpLink.create({
+            uri: environment.hasuraUrl,
+            headers,
+          }),
+          defaultOptions: {
+            watchQuery: {
+              fetchPolicy: 'network-only',
+              errorPolicy: 'all',
+            },
+            query: {
+              fetchPolicy: 'network-only',
+              errorPolicy: 'all',
+            },
+            mutate: {
+              errorPolicy: 'all',
+            },
+          },
+        };
       },
-      {
-        metaReducers: [localStorageSyncReducer], // Apply the metaReducer to sync with localStorage
-      },
-    ),
-    provideEffects([VehicleEffects]),
+      deps: [HttpLink],
+    },
+    Apollo,
+    HttpLink,
   ],
 };
