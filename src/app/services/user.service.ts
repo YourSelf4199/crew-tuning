@@ -12,12 +12,14 @@ export class UserService {
    */
   async saveUserToHasura(userId: string, email: string, name: string) {
     const SAVE_USER = gql`
-      mutation InsertUser($email: String!, $sub: String!, $name: String) {
+      mutation CreateUser($email: String!, $sub: String!, $name: String) {
         insert_users_one(
           object: { email: $email, cognito_sub: $sub, name: $name }
           on_conflict: { constraint: users_cognito_sub_key, update_columns: [] }
         ) {
-          id
+          cognito_sub
+          email
+          name
         }
       }
     `;
