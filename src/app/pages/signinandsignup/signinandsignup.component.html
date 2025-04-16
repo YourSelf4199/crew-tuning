@@ -1,5 +1,5 @@
-<!-- Sign Up -->
-<app-signup-form
-  (signupSuccess)="onSignupSuccess()"
-  (switchToLogin)="onSwitchToLogin()"
-></app-signup-form>
+<!-- Sign In Form -->
+<app-signin-form *ngIf="showSignIn" (switchToSignup)="onSwitchToSignup()"></app-signin-form>
+
+<!-- Sign Up Form -->
+<app-signup-form *ngIf="!showSignIn" (switchToLogin)="onSwitchToLogin()"></app-signup-form>
