@@ -17,12 +17,26 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class AuthService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
-  loading$ = this.loadingSubject.asObservable();
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
 
-  constructor(private router: Router) {}
+  loading$ = this.loadingSubject.asObservable();
+  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  constructor(private router: Router) {
+    this.checkAuthState();
+  }
 
   private setLoading(loading: boolean) {
     this.loadingSubject.next(loading);
+  }
+
+  private async checkAuthState() {
+    try {
+      const session = await fetchAuthSession();
+      this.isAuthenticatedSubject.next(!!session.tokens);
+    } catch (error) {
+      this.isAuthenticatedSubject.next(false);
+    }
   }
 
   /**
@@ -35,10 +49,9 @@ export class AuthService {
         username: email,
         password,
       });
-      this.router.navigate(['/dashboard']);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign in failed:', error);
-      throw error;
+      throw new Error('Incorrect username or password. Please try again.');
     } finally {
       this.setLoading(false);
     }
@@ -61,8 +74,13 @@ export class AuthService {
         },
       };
       return await signUp(input);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign up failed:', error);
+      if (error.name === 'UsernameExistsException') {
+        // If user already exists, redirect to app
+        this.router.navigate(['/app']);
+        return;
+      }
       throw error;
     } finally {
       this.setLoading(false);
@@ -76,7 +94,7 @@ export class AuthService {
     this.setLoading(true);
     try {
       await signOut();
-      this.router.navigate(['/login']);
+      this.router.navigate(['']);
     } catch (error) {
       console.error('Sign out failed:', error);
       throw error;
@@ -89,14 +107,11 @@ export class AuthService {
    * Get current auth session
    */
   async getCurrentSession() {
-    this.setLoading(true);
     try {
       return await fetchAuthSession();
     } catch (error) {
       console.error('Failed to fetch session:', error);
       throw error;
-    } finally {
-      this.setLoading(false);
     }
   }
 
