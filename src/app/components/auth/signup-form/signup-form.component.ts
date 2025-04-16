@@ -1,54 +1,67 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
-import { SignUpOutput } from 'aws-amplify/auth';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup-form',
   templateUrl: './signup-form.component.html',
   styleUrls: ['./signup-form.component.css'],
+  imports: [CommonModule, ReactiveFormsModule],
 })
 export class SignupFormComponent {
   @Output() signupSuccess = new EventEmitter<void>();
   @Output() switchToLogin = new EventEmitter<void>();
 
   signupForm: FormGroup;
-  isLoading = false;
+  errorMessage: string | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    public authService: AuthService,
     private userService: UserService,
+    private router: Router,
   ) {
-    this.signupForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      name: ['', Validators.required],
-    });
+    this.signupForm = this.fb.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
+        confirmPassword: ['', [Validators.required]],
+        name: ['', Validators.required],
+      },
+      { validators: this.passwordMatchValidator },
+    );
+  }
+
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
   async onSubmit() {
     if (this.signupForm.valid) {
-      this.isLoading = true;
+      this.errorMessage = null;
       const { email, password, name } = this.signupForm.value;
+
       try {
-        // Sign up user in Cognito
+        // First create Cognito user
         const signUpResult = await this.authService.signUp(email, password, name);
 
-        if (!signUpResult.userId) {
+        if (!signUpResult?.userId) {
           throw new Error('Failed to get Cognito user ID');
         }
 
-        // Save user to Hasura
+        // Then save to Hasura
         await this.userService.saveUserToHasura(signUpResult.userId, email, name);
 
-        this.signupSuccess.emit();
+        // Navigate to the sidebar
+        this.router.navigate(['/app']);
       } catch (error) {
         console.error('Signup failed:', error);
-        // Handle error (show message to user)
-      } finally {
-        this.isLoading = false;
+        this.errorMessage = 'Failed to create account. Please try again.';
       }
     }
   }
