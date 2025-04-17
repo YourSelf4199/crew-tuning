@@ -3,15 +3,21 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import {
+  EmailValidatorDirective,
+  PasswordValidatorDirective,
+} from '../../../directives/validators';
 
 @Component({
   selector: 'app-signin-form',
   templateUrl: './signin-form.component.html',
   styleUrls: ['./signin-form.component.css'],
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
 })
 export class SigninFormComponent {
   @Output() switchToSignup = new EventEmitter<void>();
+  @Output() switchToPasswordReset = new EventEmitter<void>();
 
   signinForm: FormGroup;
   errorMessage: string | null = null;
@@ -20,10 +26,16 @@ export class SigninFormComponent {
     private fb: FormBuilder,
     public authService: AuthService,
     private router: Router,
+    private emailValidator: EmailValidatorDirective,
+    private passwordValidator: PasswordValidatorDirective,
   ) {
     this.signinForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
+      email: ['', [Validators.required, this.emailValidator.validate.bind(this.emailValidator)]],
+      password: [
+        '',
+        Validators.required,
+        this.passwordValidator.validate.bind(this.passwordValidator),
+      ],
     });
   }
 
@@ -44,5 +56,9 @@ export class SigninFormComponent {
 
   onSwitchToSignup() {
     this.switchToSignup.emit();
+  }
+
+  onSwitchToPasswordReset() {
+    this.switchToPasswordReset.emit();
   }
 }

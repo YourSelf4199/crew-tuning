@@ -1,11 +1,11 @@
 <form [formGroup]="signinForm" (ngSubmit)="onSubmit()" class="space-y-4">
   <div>
-    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+    <label for="signin-email" class="block text-sm font-medium text-gray-300">Email</label>
     <input
       type="email"
-      id="email"
+      id="signin-email"
       formControlName="email"
-      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+      class="mt-1 block w-full rounded-md border-gray-700 bg-[#3A3A3A] text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400"
       [class.border-red-500]="signinForm.get('email')?.invalid && signinForm.get('email')?.touched"
     />
     <div
@@ -17,12 +17,12 @@
   </div>
 
   <div>
-    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+    <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
     <input
       type="password"
       id="password"
       formControlName="password"
-      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+      class="mt-1 block w-full rounded-md border-gray-700 bg-[#3A3A3A] text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400"
       [class.border-red-500]="
         signinForm.get('password')?.invalid && signinForm.get('password')?.touched
       "
@@ -39,7 +39,7 @@
     <button
       type="submit"
       [disabled]="signinForm.invalid || (authService.loading$ | async)"
-      class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="inline-flex justify-center rounded-md border border-transparent bg-yellow-400 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <span *ngIf="!(authService.loading$ | async)">Sign In</span>
       <span *ngIf="authService.loading$ | async" class="inline-flex items-center">
@@ -69,10 +69,22 @@
     <button
       type="button"
       (click)="onSwitchToSignup()"
-      class="text-sm text-indigo-600 hover:text-indigo-500"
+      class="text-sm text-yellow-400 hover:text-yellow-500"
     >
       Don't have an account? Sign up
     </button>
+  </div>
+
+  <div class="flex items-center justify-between">
+    <div class="text-sm">
+      <button
+        type="button"
+        (click)="onSwitchToPasswordReset()"
+        class="text-yellow-400 hover:text-yellow-500"
+      >
+        Forgot password?
+      </button>
+    </div>
   </div>
 
   <div *ngIf="errorMessage" class="text-red-500 text-sm text-center">

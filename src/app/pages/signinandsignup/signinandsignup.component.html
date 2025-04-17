@@ -1,5 +1,22 @@
-<!-- Sign In Form -->
-<app-signin-form *ngIf="showSignIn" (switchToSignup)="onSwitchToSignup()"></app-signin-form>
+<div class="min-h-screen flex items-center justify-center bg-[#1C1C1C]">
+  <div class="max-w-md w-full space-y-8 p-8 bg-[#2A2A2A] rounded-lg shadow-lg">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-yellow-400">
+        {{ showPasswordReset ? 'Reset Password' : showSignUp ? 'Sign Up' : 'Sign In' }}
+      </h2>
+    </div>
 
-<!-- Sign Up Form -->
-<app-signup-form *ngIf="!showSignIn" (switchToLogin)="onSwitchToLogin()"></app-signup-form>
+    <app-signin-form
+      *ngIf="showSignIn"
+      (switchToSignup)="onSwitchToSignup()"
+      (switchToPasswordReset)="onSwitchToPasswordReset()"
+    ></app-signin-form>
+
+    <app-signup-form *ngIf="showSignUp" (switchToLogin)="onSwitchToLogin()"></app-signup-form>
+
+    <app-password-reset
+      *ngIf="showPasswordReset"
+      (switchToLogin)="onSwitchToLogin()"
+    ></app-password-reset>
+  </div>
+</div>
