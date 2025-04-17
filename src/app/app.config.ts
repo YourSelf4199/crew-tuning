@@ -14,12 +14,20 @@ import { onError } from '@apollo/client/link/error';
 import { Router } from '@angular/router';
 import { split } from '@apollo/client/link/core';
 import { getMainDefinition } from '@apollo/client/utilities';
+import {
+  EmailValidatorDirective,
+  NameValidatorDirective,
+  PasswordValidatorDirective,
+} from './directives/validators';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
+    EmailValidatorDirective,
+    NameValidatorDirective,
+    PasswordValidatorDirective,
     {
       provide: APOLLO_OPTIONS,
       useFactory: (httpLink: HttpLink, router: Router) => {
