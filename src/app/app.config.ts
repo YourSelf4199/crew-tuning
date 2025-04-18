@@ -40,6 +40,7 @@ export const appConfig: ApplicationConfig = {
     EmailValidatorDirective,
     NameValidatorDirective,
     PasswordValidatorDirective,
+    Apollo,
     {
       provide: APOLLO_OPTIONS,
       useFactory: (httpLink: HttpLink, router: Router) => {
@@ -49,17 +50,20 @@ export const appConfig: ApplicationConfig = {
             const session = await fetchAuthSession();
             const token = session.tokens?.idToken?.toString();
             const userId = session.tokens?.idToken?.payload?.sub;
-            const tokenPayload = session.tokens?.idToken?.payload as TokenPayload;
+            const hasuraClaims = session.tokens?.idToken?.payload?.['https://hasura.io/jwt/claims'];
 
-            if (!token || !userId) {
+            if (!token || !userId || !hasuraClaims) {
               console.warn('No valid authentication token available');
-              return null; // This will prevent the request from being made
+              return null; // Prevent the request from being made
             }
 
-            // Verify the token has the required claims
-            if (!tokenPayload?.['https://hasura.io/jwt/claims']?.['X-Hasura-User-Id']) {
+            // Parse the Hasura claims if they're a string
+            const parsedClaims =
+              typeof hasuraClaims === 'string' ? JSON.parse(hasuraClaims) : hasuraClaims;
+
+            if (!parsedClaims['x-hasura-user-id']) {
               console.warn('Token missing required Hasura claims');
-              return null;
+              return null; // Prevent the request from being made
             }
 
             return {
@@ -67,11 +71,12 @@ export const appConfig: ApplicationConfig = {
                 ...headers,
                 Authorization: `Bearer ${token}`,
                 'X-Hasura-User-Id': userId,
+                'X-Hasura-Role': parsedClaims['x-hasura-default-role'],
               },
             };
           } catch (error) {
             console.warn('Error getting auth session:', error);
-            return null; // Prevent request on any auth error
+            return null; // Prevent the request from being made
           }
         });
 
@@ -99,32 +104,14 @@ export const appConfig: ApplicationConfig = {
         // Create authenticated HTTP link
         const http = httpLink.create({
           uri: environment.hasuraUrl,
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-          }),
         });
 
         return {
           cache: new InMemoryCache(),
-          link: errorLink.concat(authLink).concat(http),
-          defaultOptions: {
-            watchQuery: {
-              fetchPolicy: 'network-only',
-              errorPolicy: 'all',
-            },
-            query: {
-              fetchPolicy: 'network-only',
-              errorPolicy: 'all',
-            },
-            mutate: {
-              errorPolicy: 'all',
-            },
-          },
+          link: errorLink.concat(authLink.concat(http)),
         };
       },
       deps: [HttpLink, Router],
     },
-    Apollo,
-    HttpLink,
   ],
 };
