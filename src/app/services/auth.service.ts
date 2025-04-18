@@ -18,6 +18,7 @@ import { BehaviorSubject } from 'rxjs';
 export class AuthService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  isSigningOut = false;
 
   loading$ = this.loadingSubject.asObservable();
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -49,6 +50,7 @@ export class AuthService {
         username: email,
         password,
       });
+      await this.router.navigate(['/app/dashboard']);
     } catch (error: any) {
       console.error('Sign in failed:', error);
       throw new Error('Incorrect username or password. Please try again.');
@@ -95,14 +97,17 @@ export class AuthService {
    */
   async signOut() {
     this.setLoading(true);
+    this.isSigningOut = true;
     try {
       await signOut();
-      this.router.navigate(['']);
+      this.isAuthenticatedSubject.next(false);
+      await this.router.navigate(['/']);
     } catch (error) {
       console.error('Sign out failed:', error);
       throw error;
     } finally {
       this.setLoading(false);
+      this.isSigningOut = false;
     }
   }
 

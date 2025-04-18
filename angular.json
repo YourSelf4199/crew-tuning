@@ -31,6 +31,8 @@
               }
             ],
             "styles": [
+              "node_modules/swiper/modules/navigation.min.css",
+              "node_modules/swiper/modules/pagination.min.css",
               "src/styles.css"
             ],
             "scripts": []
