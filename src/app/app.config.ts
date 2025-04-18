@@ -19,18 +19,7 @@ import {
   NameValidatorDirective,
   PasswordValidatorDirective,
 } from './directives/validators';
-
-interface HasuraClaims {
-  'X-Hasura-User-Id': string;
-  'x-hasura-allowed-roles': string[];
-  'x-hasura-default-role': string;
-}
-
-interface TokenPayload {
-  sub: string;
-  'https://hasura.io/jwt/claims': HasuraClaims;
-  [key: string]: any;
-}
+import { HasuraClaims, TokenPayload } from './models/auth.model';
 
 export const appConfig: ApplicationConfig = {
   providers: [
