@@ -1,0 +1,47 @@
+.custom-button-prev,
+.custom-button-next,
+.custom-pagination {
+  position: unset;
+}
+
+.custom-button-prev,
+.custom-button-next {
+  color: #fbbf24;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.custom-button-prev:hover,
+.custom-button-next:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.custom-button-prev::after,
+.custom-button-next::after {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.custom-button-prev::after {
+  content: '<';
+}
+
+.custom-button-next::after {
+  content: '>';
+}
+
+:host ::ng-deep .swiper-pagination-bullet-active {
+  background: #fbbf24;
+  opacity: 0.5;
+}
+
+:host ::ng-deep .swiper-pagination-bullet {
+  opacity: 1;
+}

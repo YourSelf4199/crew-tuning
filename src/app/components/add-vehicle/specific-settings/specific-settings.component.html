@@ -1,0 +1,267 @@
+<div class="p-6 text-white">
+  <div class="flex items-center mb-6">
+    <button (click)="onBack()" class="text-yellow-400 hover:text-yellow-500 mr-4">← Back</button>
+    <h2 class="text-xl font-semibold">Configure {{ selectedVehicle.name }}</h2>
+  </div>
+
+  <div class="bg-gray-800 rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-yellow-400 mb-4">Specific Settings</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Aero Distribution -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Aero Distribution</label>
+          <span class="text-yellow-400">{{ settings.aero_distribution }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.aero_distribution"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- ARB Front -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">ARB Front</label>
+          <span class="text-yellow-400">{{ settings.arb_front }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.arb_front"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- ARB Rear -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">ARB Rear</label>
+          <span class="text-yellow-400">{{ settings.arb_rear }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.arb_rear"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Brake Balance -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Brake Balance</label>
+          <span class="text-yellow-400">{{ settings.brake_balance }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.brake_balance"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Brake Power -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Brake Power</label>
+          <span class="text-yellow-400">{{ settings.brake_power }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.brake_power"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Gearbox -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Gearbox</label>
+          <span class="text-yellow-400">{{ settings.gearbox }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.gearbox"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Suspension Compression Front -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Suspension Compression Front</label>
+          <span class="text-yellow-400">{{ settings.susp_comp_front }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.susp_comp_front"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Suspension Compression Rear -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Suspension Compression Rear</label>
+          <span class="text-yellow-400">{{ settings.susp_comp_rear }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.susp_comp_rear"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Suspension Geometry Camber Front -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Suspension Geometry Camber Front</label>
+          <span class="text-yellow-400">{{ settings.susp_geom_camber_front }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.susp_geom_camber_front"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Suspension Geometry Camber Rear -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Suspension Geometry Camber Rear</label>
+          <span class="text-yellow-400">{{ settings.susp_geom_camber_rear }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.susp_geom_camber_rear"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Suspension Rebound Front -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Suspension Rebound Front</label>
+          <span class="text-yellow-400">{{ settings.susp_reb_front }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.susp_reb_front"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Suspension Rebound Rear -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Suspension Rebound Rear</label>
+          <span class="text-yellow-400">{{ settings.susp_reb_rear }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.susp_reb_rear"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Tire Grip Front -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Tire Grip Front</label>
+          <span class="text-yellow-400">{{ settings.tire_grip_front }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.tire_grip_front"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+
+      <!-- Tire Grip Rear -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-gray-300">Tire Grip Rear</label>
+          <span class="text-yellow-400">{{ settings.tire_grip_rear }}</span>
+        </div>
+        <input
+          type="range"
+          [(ngModel)]="settings.tire_grip_rear"
+          (ngModelChange)="onSettingsChange()"
+          [min]="minValue"
+          [max]="maxValue"
+          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+    </div>
+
+    <div class="mt-8 flex justify-end">
+      <button
+        (click)="onSave()"
+        [disabled]="isLoading"
+        class="bg-yellow-400 text-gray-900 py-2 px-6 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        <svg
+          *ngIf="isLoading"
+          class="animate-spin h-5 w-5 text-gray-900"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        {{ isLoading ? 'Saving...' : 'Save Configuration' }}
+      </button>
+    </div>
+  </div>
+</div>

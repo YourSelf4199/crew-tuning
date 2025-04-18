@@ -1,0 +1,26 @@
+<div class="p-6 text-white">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-yellow-400">Add Car Tuning</h1>
+  </div>
+
+  @if (!selectedVehicle) {
+    <app-select-vehicle (vehicleSelected)="onVehicleSelected($event)"></app-select-vehicle>
+  } @else if (showGlobalSettings) {
+    <app-global-settings
+      [selectedVehicle]="selectedVehicle"
+      (back)="onBack()"
+      (next)="onNext()"
+      (settingsChange)="onGlobalSettingsChanged($event)"
+    >
+    </app-global-settings>
+  } @else if (showSpecificSettings) {
+    <app-specific-settings
+      *ngIf="showSpecificSettings"
+      [selectedVehicle]="selectedVehicle"
+      [settings]="specificSettings"
+      (settingsChange)="onSpecificSettingsChanged($event)"
+      (save)="onSaveSpecificSettings($event)"
+      (back)="onBack()"
+    ></app-specific-settings>
+  }
+</div>
