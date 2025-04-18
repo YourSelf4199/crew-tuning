@@ -1,204 +1,22 @@
-<div class="flex justify-center items-center min-h-screen bg-[#1C1C1C] text-white">
-  <div class="bg-[#2A2A2A] p-8 rounded-2xl shadow-2xl w-full sm:w-96 border border-[#333]">
-    <!-- Sign Up -->
-    @if (authState === 'signup') {
-      <div class="space-y-4">
-        <h2 class="text-2xl font-bold text-center text-yellow-400">Sign Up</h2>
-        <form (ngSubmit)="handleSignUp()" #signUpForm="ngForm" class="space-y-4">
-          <div>
-            <label class="block text-sm text-gray-300">Name</label>
-            <input
-              type="text"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="name"
-              name="name"
-              required
-            />
-          </div>
+<div class="min-h-screen flex items-center justify-center bg-[#1C1C1C]">
+  <div class="max-w-md w-full space-y-8 p-8 bg-[#2A2A2A] rounded-lg shadow-lg">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-yellow-400">
+        {{ showPasswordReset ? 'Reset Password' : showSignUp ? 'Sign Up' : 'Sign In' }}
+      </h2>
+    </div>
 
-          <div>
-            <label class="block text-sm text-gray-300">Email</label>
-            <input
-              type="email"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="email"
-              name="email"
-              required
-            />
-          </div>
+    <app-signin-form
+      *ngIf="showSignIn"
+      (switchToSignup)="onSwitchToSignup()"
+      (switchToPasswordReset)="onSwitchToPasswordReset()"
+    ></app-signin-form>
 
-          <div>
-            <label class="block text-sm text-gray-300">Password</label>
-            <input
-              type="password"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="password"
-              name="password"
-              required
-            />
-          </div>
+    <app-signup-form *ngIf="showSignUp" (switchToLogin)="onSwitchToLogin()"></app-signup-form>
 
-          <div>
-            <label class="block text-sm text-gray-300">Confirm Password</label>
-            <input
-              type="password"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="confirmPassword"
-              name="confirmPassword"
-              required
-            />
-            @if (password && confirmPassword && password !== confirmPassword) {
-              <p class="text-sm text-red-500 mt-1">Passwords do not match.</p>
-            }
-          </div>
-
-          <button
-            type="submit"
-            class="w-full py-2 mt-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
-            [disabled]="password !== confirmPassword || !email || !password"
-          >
-            Sign Up
-          </button>
-        </form>
-
-        <p class="text-sm text-center text-gray-400">
-          Already have an account?
-          <span (click)="showSignIn()" class="text-yellow-400 cursor-pointer hover:underline"
-            >Sign In</span
-          >
-        </p>
-      </div>
-    }
-
-    <!-- Sign In -->
-    @if (authState === 'signin') {
-      <div class="space-y-4">
-        <h2 class="text-2xl font-bold text-center text-yellow-400">Sign In</h2>
-        <form (ngSubmit)="handleSignIn()" #signInForm="ngForm" class="space-y-4">
-          <div>
-            <label class="block text-sm text-gray-300">Email</label>
-            <input
-              type="email"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="email"
-              name="email"
-              required
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm text-gray-300">Password</label>
-            <input
-              type="password"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="password"
-              name="password"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            class="w-full py-2 mt-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
-          >
-            Sign In
-          </button>
-        </form>
-
-        <p class="text-sm text-center text-gray-400">
-          Don't have an account?
-          <span (click)="showSignUp()" class="text-yellow-400 cursor-pointer hover:underline"
-            >Sign Up</span
-          >
-        </p>
-
-        <p class="text-sm text-center text-gray-400">
-          Forgot your password?
-          <span
-            (click)="showForgotPassword()"
-            class="text-yellow-400 cursor-pointer hover:underline"
-            >Reset</span
-          >
-        </p>
-      </div>
-    }
-
-    <!-- Reset Password -->
-    @if (authState === 'reset') {
-      <div class="space-y-4">
-        <h2 class="text-2xl font-bold text-center text-yellow-400">Reset Password</h2>
-        <form (ngSubmit)="handleForgotPassword()" #resetPasswordForm="ngForm" class="space-y-4">
-          <div>
-            <label class="block text-sm text-gray-300">Email</label>
-            <input
-              type="email"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="email"
-              name="email"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
-          >
-            Send Reset Link
-          </button>
-        </form>
-      </div>
-    }
-
-    <!-- Confirm Reset -->
-    @if (authState === 'confirm') {
-      <div class="space-y-4">
-        <h2 class="text-2xl font-bold text-center text-yellow-400">Confirm Reset</h2>
-        <form (ngSubmit)="handleResetPassword()" #confirmForm="ngForm" class="space-y-4">
-          <div>
-            <label class="block text-sm text-gray-300">Confirmation Code</label>
-            <input
-              type="text"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="confirmationCode"
-              name="confirmationCode"
-              required
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm text-gray-300">New Password</label>
-            <input
-              type="password"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="password"
-              name="password"
-              required
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm text-gray-300">Confirm Password</label>
-            <input
-              type="password"
-              class="w-full p-2 rounded-md bg-[#1C1C1C] border border-gray-600 text-white"
-              [(ngModel)]="confirmPassword"
-              name="confirmPassword"
-              required
-            />
-            @if (password && confirmPassword && password !== confirmPassword) {
-              <p class="text-sm text-red-500 mt-1">Passwords do not match.</p>
-            }
-          </div>
-
-          <button
-            type="submit"
-            class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition"
-            [disabled]="password !== confirmPassword || !confirmationCode"
-          >
-            Reset Password
-          </button>
-        </form>
-      </div>
-    }
+    <app-password-reset
+      *ngIf="showPasswordReset"
+      (switchToLogin)="onSwitchToLogin()"
+    ></app-password-reset>
   </div>
 </div>

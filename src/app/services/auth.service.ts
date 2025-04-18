@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Store } from '@ngrx/store';
 import {
   signUp,
   signIn,
@@ -10,45 +9,62 @@ import {
   confirmResetPassword,
   updatePassword,
 } from 'aws-amplify/auth';
-import { setAuthSession } from '../store/auth/auth.actions';
-import { selectIdToken, selectUserId } from '../store/auth/auth.selectors';
-import { InsertService } from './database-queries.ts/insert.service';
-import { CfnThreatIntelSet } from 'aws-cdk-lib/aws-guardduty';
 import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(
-    private store: Store,
-    private insertQueriesService: InsertService,
-    private router: Router,
-  ) {}
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
 
-  /**
-   * Sign in user with Cognito
-   */
-  async signIn(email: string, password: string) {
+  loading$ = this.loadingSubject.asObservable();
+  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  constructor(private router: Router) {
+    this.checkAuthState();
+  }
+
+  private setLoading(loading: boolean) {
+    this.loadingSubject.next(loading);
+  }
+
+  private async checkAuthState() {
     try {
-      await signIn({
-        username: email,
-        password: password,
-      });
-
-      await this.setIdToken();
-    } catch (error: any) {
-      if (error.name === 'UserAlreadyAuthenticatedException') this.router.navigate(['/dashboard']);
+      const session = await fetchAuthSession();
+      this.isAuthenticatedSubject.next(!!session.tokens);
+    } catch (error) {
+      this.isAuthenticatedSubject.next(false);
     }
   }
 
   /**
-   * Sign up user with Cognito
+   * Sign in user with email and password
    */
-  async signUp(username: string, password: string, email: string, name: string) {
+  async signIn(email: string, password: string) {
+    this.setLoading(true);
+    try {
+      await signIn({
+        username: email,
+        password,
+      });
+    } catch (error: any) {
+      console.error('Sign in failed:', error);
+      throw new Error('Incorrect username or password. Please try again.');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  /**
+   * Sign up new user
+   */
+  async signUp(email: string, password: string, name: string) {
+    this.setLoading(true);
     try {
       const input: SignUpInput = {
-        username,
+        username: email,
         password,
         options: {
           userAttributes: {
@@ -57,98 +73,100 @@ export class AuthService {
           },
         },
       };
-
+      console.log('SignUp input:', JSON.stringify(input, null, 2));
       const result = await signUp(input);
+      console.log('SignUp result:', JSON.stringify(result, null, 2));
       return result;
-    } catch (error) {
-      throw new Error('Signup failed: ' + error);
+    } catch (error: any) {
+      console.error('Sign up failed:', error);
+      if (error.name === 'UsernameExistsException') {
+        // If user already exists, redirect to app
+        this.router.navigate(['/app']);
+        return;
+      }
+      throw error;
+    } finally {
+      this.setLoading(false);
     }
   }
 
   /**
-   * Then sign in and insert into Hasura
+   * Sign out user
    */
-  async saveUser(email: string, name: string, password: string) {
-    try {
-      let idToken = this.store.selectSignal(selectIdToken)();
-
-      if (!idToken) {
-        await this.signIn(email, password);
-        //await this.setIdToken();
-        idToken = this.store.selectSignal(selectIdToken)();
-        console.log('Second: ' + idToken);
-      }
-
-      const userId = this.store.selectSignal(selectUserId)();
-
-      if (!userId) {
-        throw new Error('No userId found in ID token');
-      }
-
-      await this.insertQueriesService.insertUserIntoHasura(userId.toString(), email, name);
-    } catch (error) {
-      throw new Error('Save user failed: ' + (error as any).message);
-    }
-  }
-
-  async forgotPassword(email: string) {
-    const output = await resetPassword({
-      username: email,
-    });
-
-    const { nextStep } = output;
-    switch (nextStep.resetPasswordStep) {
-      case 'CONFIRM_RESET_PASSWORD_WITH_CODE':
-        const codeDeliveryDetails = nextStep.codeDeliveryDetails;
-        console.log(`Confirmation code was sent to ${codeDeliveryDetails.deliveryMedium}`);
-        // Collect the confirmation code from the user and pass to confirmResetPassword.
-        break;
-      case 'DONE':
-        console.log('Successfully reset password.');
-        break;
-    }
-  }
-
-  async confirmPasswordReset(confirmationCode: string, email: string, newPassword: string) {
-    await confirmResetPassword({
-      username: email,
-      confirmationCode: confirmationCode,
-      newPassword: newPassword,
-    });
-  }
-
-  async updatePassword(oldPassword: string, newPassword: string) {
-    await updatePassword({
-      oldPassword: oldPassword,
-      newPassword: newPassword,
-    });
-  }
-
   async signOut() {
-    // Clear any local storage or session storage data
-    localStorage.clear();
-    sessionStorage.clear();
-    await signOut({ global: true });
+    this.setLoading(true);
+    try {
+      await signOut();
+      this.router.navigate(['']);
+    } catch (error) {
+      console.error('Sign out failed:', error);
+      throw error;
+    } finally {
+      this.setLoading(false);
+    }
   }
 
   /**
-   * Set Cognito ID token for Hasura authorization
+   * Get current auth session
    */
-  async setIdToken() {
+  async getCurrentSession() {
     try {
-      const sessionData = await fetchAuthSession({ forceRefresh: true });
-      const idToken = sessionData?.tokens?.idToken?.toString();
+      return await fetchAuthSession();
+    } catch (error) {
+      console.error('Failed to fetch session:', error);
+      throw error;
+    }
+  }
 
-      if (idToken && sessionData?.userSub) {
-        this.store.dispatch(
-          setAuthSession({
-            idToken: idToken,
-            userId: sessionData?.userSub,
-          }),
-        );
-      }
-    } catch (err) {
-      console.error('Failed to set ID token:', err);
+  /**
+   * Reset password
+   */
+  async resetPassword(email: string) {
+    this.setLoading(true);
+    try {
+      return await resetPassword({ username: email });
+    } catch (error) {
+      console.error('Password reset failed:', error);
+      throw error;
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  /**
+   * Confirm password reset
+   */
+  async confirmPasswordReset(email: string, code: string, newPassword: string) {
+    this.setLoading(true);
+    try {
+      return await confirmResetPassword({
+        username: email,
+        confirmationCode: code,
+        newPassword,
+      });
+    } catch (error) {
+      console.error('Password reset confirmation failed:', error);
+      throw error;
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  /**
+   * Update password
+   */
+  async updatePassword(oldPassword: string, newPassword: string) {
+    this.setLoading(true);
+    try {
+      await updatePassword({
+        oldPassword,
+        newPassword,
+      });
+    } catch (error) {
+      console.error('Password update failed:', error);
+      throw error;
+    } finally {
+      this.setLoading(false);
     }
   }
 }

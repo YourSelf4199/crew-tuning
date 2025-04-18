@@ -10,21 +10,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: '',
+    path: 'app',
     component: SidebarComponent,
-    children: [
-      {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
-      },
-      {
-        path: 'add-car-tuning',
-        loadComponent: () =>
-          import('./pages/add-car-tuning/add-car-tuning.component').then(
-            (m) => m.AddCarTuningComponent,
-          ),
-      },
-    ],
   },
 ];
