@@ -8,6 +8,26 @@ import {
   SpecificSettingsResponse,
   VehicleConfigurationResponse,
 } from '../models/vehicle-response.model';
+import { S3Service } from './s3.service';
+import { map, switchMap } from 'rxjs/operators';
+
+interface GetVehicleConfigurationsResponse {
+  vehicle_configuration: Array<{
+    id: string;
+    vehicle_images_names_id: string;
+    vehicle_types_id: string;
+    cognito_sub_id: string;
+    global_settings_id: string;
+    specific_settings_id: string;
+    specific_settings_boat_id: string | null;
+    vehicle_images_name: {
+      id: string;
+      name: string;
+      s3_image_url: string;
+      vehicle_type_code: string;
+    };
+  }>;
+}
 
 const INSERT_GLOBAL_SETTINGS = gql`
   mutation InsertGlobalSettings($settings: vehicle_global_settings_insert_input!) {
@@ -33,11 +53,60 @@ const INSERT_VEHICLE_CONFIGURATION = gql`
   }
 `;
 
+const GET_VEHICLE_CONFIGURATIONS = gql`
+  query GetVehicleConfigurations($cognito_sub_id: String!) {
+    vehicle_configuration(where: { cognito_sub_id: { _eq: $cognito_sub_id } }) {
+      id
+      vehicle_images_names_id
+      vehicle_types_id
+      cognito_sub_id
+      global_settings_id
+      specific_settings_id
+      specific_settings_boat_id
+      vehicle_images_name {
+        id
+        name
+        s3_image_url
+        vehicle_type_code
+      }
+    }
+  }
+`;
+
 @Injectable({
   providedIn: 'root',
 })
 export class VehicleConfigurationService {
-  constructor(private apollo: Apollo) {}
+  constructor(
+    private apollo: Apollo,
+    private s3Service: S3Service,
+  ) {}
+
+  getVehicleConfigurations(cognito_sub_id: string) {
+    return this.apollo
+      .watchQuery<GetVehicleConfigurationsResponse>({
+        query: GET_VEHICLE_CONFIGURATIONS,
+        variables: { cognito_sub_id },
+        fetchPolicy: 'network-only',
+      })
+      .valueChanges.pipe(
+        map((result) => result.data.vehicle_configuration),
+        switchMap(async (configs) => {
+          const configsWithUrls = await Promise.all(
+            configs.map(async (config) => {
+              const signedUrl = await this.s3Service.getSignedUrl(
+                config.vehicle_images_name.s3_image_url,
+              );
+              return {
+                ...config,
+                signedUrl,
+              };
+            }),
+          );
+          return configsWithUrls;
+        }),
+      );
+  }
 
   insertGlobalSettings(settings: GlobalSettings) {
     return this.apollo.mutate<GlobalSettingsResponse>({

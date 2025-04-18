@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { VehicleService } from '../../services/vehicle.service';
-import { VehicleImage } from '../../models/vehicle.model';
+import { VehicleConfigurationService } from '../../services/vehicle-configuration.service';
+import { AuthService } from '../../services/auth.service';
+import { VehicleConfiguration } from '../../models/vehicle-configuration.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,37 +12,51 @@ import { VehicleImage } from '../../models/vehicle.model';
   imports: [CommonModule],
 })
 export class DashboardComponent implements OnInit {
-  vehicleImages: VehicleImage[] = [];
+  configurations: VehicleConfiguration[] = [];
   isLoading = true;
   error: string | null = null;
   private failedImages = new Set<string>();
 
-  constructor(private vehicleService: VehicleService) {}
+  constructor(
+    private vehicleConfigurationService: VehicleConfigurationService,
+    private authService: AuthService,
+  ) {}
 
-  ngOnInit(): void {
-    this.loadVehicleImages();
+  async ngOnInit(): Promise<void> {
+    try {
+      const session = await this.authService.getCurrentSession();
+      const cognitoSubId = session.userSub;
+
+      if (!cognitoSubId) {
+        this.error = 'No user session found';
+        this.isLoading = false;
+        return;
+      }
+
+      this.vehicleConfigurationService.getVehicleConfigurations(cognitoSubId).subscribe({
+        next: (configs) => {
+          this.configurations = configs;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load vehicle configurations';
+          this.isLoading = false;
+          console.error('Error loading vehicle configurations:', err);
+        },
+      });
+    } catch (error) {
+      this.error = 'Failed to get user session';
+      this.isLoading = false;
+      console.error('Error getting user session:', error);
+    }
   }
 
-  private loadVehicleImages(): void {
-    this.vehicleService.getVehicleImages().subscribe({
-      next: (images) => {
-        this.vehicleImages = images;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load vehicle images';
-        this.isLoading = false;
-        console.error('Error loading vehicle images:', err);
-      },
-    });
-  }
-
-  handleImageError(event: Event, image: VehicleImage): void {
-    if (this.failedImages.has(image.id)) return; // Skip if we've already tried the placeholder
+  handleImageError(event: Event, config: VehicleConfiguration): void {
+    if (this.failedImages.has(config.vehicle_images_name.id)) return;
 
     const imgElement = event.target as HTMLImageElement;
-    this.failedImages.add(image.id);
+    this.failedImages.add(config.vehicle_images_name.id);
     imgElement.src = 'assets/images/placeholder.jpg';
-    console.error(`Failed to load image: ${image.name}`);
+    console.error(`Failed to load image: ${config.vehicle_images_name.name}`);
   }
 }
