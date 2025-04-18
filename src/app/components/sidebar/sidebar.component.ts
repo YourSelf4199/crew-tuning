@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./sidebar.component.css'],
 })
 export class SidebarComponent {
-  constructor(private authService: AuthService) {}
+  constructor(public authService: AuthService) {}
 
   async onSignOut() {
     try {

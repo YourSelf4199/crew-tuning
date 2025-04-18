@@ -45,7 +45,6 @@ export class SigninFormComponent {
 
       try {
         await this.authService.signIn(email, password);
-        this.router.navigate(['/app']);
       } catch (error: any) {
         console.error('Sign in failed:', error);
         this.errorMessage = error.message || 'An error occurred during sign in. Please try again.';
