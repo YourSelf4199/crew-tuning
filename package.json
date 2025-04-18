@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "prebuild": "node scripts/copy-amplify-outputs.js",
-    "build": "ng build --configuration production",
+    "build": "npm install --legacy-peer-deps && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -21,7 +21,7 @@
     "@angular/router": "^19.2.5",
     "@apollo/client": "^3.9.5",
     "@tailwindcss/postcss": "^4.1.3",
-    "apollo-angular": "^6.0.0",
+    "apollo-angular": "^5.0.2",
     "aws-amplify": "^6.0.14",
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
