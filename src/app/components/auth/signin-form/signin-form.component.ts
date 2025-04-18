@@ -33,8 +33,7 @@ export class SigninFormComponent {
       email: ['', [Validators.required, this.emailValidator.validate.bind(this.emailValidator)]],
       password: [
         '',
-        Validators.required,
-        this.passwordValidator.validate.bind(this.passwordValidator),
+        [Validators.required, this.passwordValidator.validate.bind(this.passwordValidator)],
       ],
     });
   }
