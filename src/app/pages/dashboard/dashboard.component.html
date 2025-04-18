@@ -1,0 +1,34 @@
+<div class="p-6 text-white">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-yellow-400">Welcome to Your Dashboard</h1>
+  </div>
+
+  <div>
+    @if (isLoading) {
+      <div class="flex justify-center items-center h-64 text-yellow-400">
+        Loading vehicle images...
+      </div>
+    } @else if (error) {
+      <div class="bg-red-500 text-white p-4 rounded-lg mb-6">
+        {{ error }}
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (image of vehicleImages; track image.id) {
+          <div class="bg-gray-800 p-6 rounded-lg">
+            <img
+              [src]="image.signedUrl || 'assets/images/placeholder.jpg'"
+              [alt]="image.name"
+              class="w-full h-48 object-cover rounded-lg mb-4"
+              (error)="handleImageError($event, image)"
+            />
+            <div>
+              <h3 class="text-xl font-semibold text-yellow-400 mb-2">{{ image.name }}</h3>
+              <p class="text-gray-300">Type: {{ image.vehicle_type_code }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
