@@ -1,6 +1,7 @@
 import { defineAuth } from '@aws-amplify/backend';
 import { preTokenGeneration } from '../functions/pre-token-generation/resource';
 import { preSignUp } from '../functions/pre-sign-up/resource';
+import { postConfirmation } from '../functions/post-confirmation/resource';
 
 /**
  * Define and configure your auth resource
@@ -13,6 +14,7 @@ export const auth = defineAuth({
   triggers: {
     preTokenGeneration,
     preSignUp,
+    postConfirmation,
   },
   accountRecovery: 'EMAIL_ONLY',
 });

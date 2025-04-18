@@ -20,6 +20,18 @@ import {
   PasswordValidatorDirective,
 } from './directives/validators';
 
+interface HasuraClaims {
+  'X-Hasura-User-Id': string;
+  'x-hasura-allowed-roles': string[];
+  'x-hasura-default-role': string;
+}
+
+interface TokenPayload {
+  sub: string;
+  'https://hasura.io/jwt/claims': HasuraClaims;
+  [key: string]: any;
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
@@ -33,21 +45,34 @@ export const appConfig: ApplicationConfig = {
       useFactory: (httpLink: HttpLink, router: Router) => {
         // Create an auth link that adds the token to requests
         const authLink = setContext(async (_, { headers }) => {
-          const session = await fetchAuthSession();
-          const token = session.tokens?.idToken?.toString();
-          const userId = session.tokens?.idToken?.payload?.sub;
+          try {
+            const session = await fetchAuthSession();
+            const token = session.tokens?.idToken?.toString();
+            const userId = session.tokens?.idToken?.payload?.sub;
+            const tokenPayload = session.tokens?.idToken?.payload as TokenPayload;
 
-          if (!token) {
-            throw new Error('No authentication token available');
+            if (!token || !userId) {
+              console.warn('No valid authentication token available');
+              return null; // This will prevent the request from being made
+            }
+
+            // Verify the token has the required claims
+            if (!tokenPayload?.['https://hasura.io/jwt/claims']?.['X-Hasura-User-Id']) {
+              console.warn('Token missing required Hasura claims');
+              return null;
+            }
+
+            return {
+              headers: {
+                ...headers,
+                Authorization: `Bearer ${token}`,
+                'X-Hasura-User-Id': userId,
+              },
+            };
+          } catch (error) {
+            console.warn('Error getting auth session:', error);
+            return null; // Prevent request on any auth error
           }
-
-          return {
-            headers: {
-              ...headers,
-              Authorization: `Bearer ${token}`,
-              'X-Hasura-User-Id': userId,
-            },
-          };
         });
 
         // Create an error link to handle authentication errors
@@ -71,39 +96,17 @@ export const appConfig: ApplicationConfig = {
           }
         });
 
-        // Create authenticated and unauthenticated HTTP links
-        const authenticatedHttp = httpLink.create({
+        // Create authenticated HTTP link
+        const http = httpLink.create({
           uri: environment.hasuraUrl,
           headers: new HttpHeaders({
             'Content-Type': 'application/json',
           }),
         });
-
-        const unauthenticatedHttp = httpLink.create({
-          uri: environment.hasuraUrl,
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            'x-hasura-admin-secret': environment.hasuraAdminSecret, // Use admin secret for unauthenticated operations
-          }),
-        });
-
-        // Split the link based on operation type
-        const splitLink = split(
-          ({ query }) => {
-            const definition = getMainDefinition(query);
-            return (
-              definition.kind === 'OperationDefinition' &&
-              definition.operation === 'mutation' &&
-              definition.name?.value === 'CreateUser' // Only use unauthenticated link for CreateUser mutation
-            );
-          },
-          unauthenticatedHttp,
-          authLink.concat(authenticatedHttp),
-        );
 
         return {
           cache: new InMemoryCache(),
-          link: errorLink.concat(splitLink),
+          link: errorLink.concat(authLink).concat(http),
           defaultOptions: {
             watchQuery: {
               fetchPolicy: 'network-only',

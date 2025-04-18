@@ -73,7 +73,10 @@ export class AuthService {
           },
         },
       };
-      return await signUp(input);
+      console.log('SignUp input:', JSON.stringify(input, null, 2));
+      const result = await signUp(input);
+      console.log('SignUp result:', JSON.stringify(result, null, 2));
+      return result;
     } catch (error: any) {
       console.error('Sign up failed:', error);
       if (error.name === 'UsernameExistsException') {
