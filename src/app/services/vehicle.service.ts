@@ -4,6 +4,7 @@ import { gql } from 'apollo-angular';
 import { Observable, map, from, switchMap } from 'rxjs';
 import { getUrl } from '@aws-amplify/storage';
 import { VehicleCategory, VehicleImage, VehicleType } from '../models/vehicle.model';
+import { S3Service } from './s3.service';
 
 const GET_VEHICLE_IMAGES = gql`
   query GetVehicleImages {
@@ -30,14 +31,10 @@ const GET_VEHICLE_CATEGORIES = gql`
   providedIn: 'root',
 })
 export class VehicleService {
-  constructor(private apollo: Apollo) {}
-
-  private fixImagePath(path: string): string {
-    if (path.endsWith('jpg') && !path.endsWith('.jpg')) {
-      return path.replace('jpg', '.jpg');
-    }
-    return path;
-  }
+  constructor(
+    private apollo: Apollo,
+    private s3Service: S3Service,
+  ) {}
 
   getVehicleImages(): Observable<VehicleImage[]> {
     return this.apollo
@@ -51,15 +48,10 @@ export class VehicleService {
           from(
             Promise.all(
               vehicles.map((vehicle) =>
-                getUrl({ path: this.fixImagePath(vehicle.s3_image_url) })
-                  .then((signed) => ({
-                    ...vehicle,
-                    signedUrl: signed.url.toString(),
-                  }))
-                  .catch((err) => {
-                    console.error(`Failed to get signed URL for ${vehicle.name}`, err);
-                    return { ...vehicle, signedUrl: '' };
-                  }),
+                this.s3Service.getSignedUrl(vehicle.s3_image_url).then((signedUrl) => ({
+                  ...vehicle,
+                  signedUrl,
+                })),
               ),
             ),
           ),
