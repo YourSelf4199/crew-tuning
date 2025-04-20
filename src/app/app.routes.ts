@@ -29,6 +29,13 @@ export const routes: Routes = [
             (m) => m.AddCarTuningComponent,
           ),
       },
+      {
+        path: 'view-car-tuning/:id',
+        loadComponent: () =>
+          import('./pages/view-car-tuning/view-car-tuning.component').then(
+            (m) => m.ViewCarTuningComponent,
+          ),
+      },
     ],
   },
 ];

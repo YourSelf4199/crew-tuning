@@ -2,24 +2,28 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VehicleConfigurationService } from '../../services/vehicle-configuration.service';
 import { AuthService } from '../../services/auth.service';
+import { CarActionsPopupComponent } from '../../components/dashboard/car-actions-popup/car-actions-popup.component';
 import { VehicleConfiguration } from '../../models/vehicle-configuration.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CarActionsPopupComponent],
 })
 export class DashboardComponent implements OnInit {
   configurations: VehicleConfiguration[] = [];
   isLoading = true;
   error: string | null = null;
   private failedImages = new Set<string>();
+  selectedConfig: VehicleConfiguration | null = null;
 
   constructor(
     private vehicleConfigurationService: VehicleConfigurationService,
     private authService: AuthService,
+    private router: Router,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -58,5 +62,38 @@ export class DashboardComponent implements OnInit {
     this.failedImages.add(config.vehicle_images_name.id);
     imgElement.src = 'assets/images/placeholder.jpg';
     console.error(`Failed to load image: ${config.vehicle_images_name.name}`);
+  }
+
+  onConfigSelected(config: VehicleConfiguration) {
+    this.selectedConfig = config;
+  }
+
+  onViewSettingsConfig(config: VehicleConfiguration) {
+    this.router.navigate(['/app/view-car-tuning', config.vehicle_images_names_id]);
+  }
+
+  onDeleteConfig(config: VehicleConfiguration) {
+    if (!config.vehicle_images_names_id) {
+      console.error('No vehicle_images_names_id found in config');
+      return;
+    }
+
+    const id = parseInt(config.vehicle_images_names_id, 10);
+
+    this.isLoading = true;
+    this.vehicleConfigurationService.deleteVehicleConfiguration(id).subscribe({
+      next: () => {
+        console.log('Configuration deleted successfully');
+        this.onClosePopup();
+      },
+      error: (error) => {
+        console.error('Error deleting configuration:', error);
+        this.isLoading = false;
+      },
+    });
+  }
+
+  onClosePopup() {
+    this.selectedConfig = null;
   }
 }

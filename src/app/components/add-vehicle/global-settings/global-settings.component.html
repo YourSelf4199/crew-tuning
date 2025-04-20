@@ -1,8 +1,9 @@
 <div class="p-6 text-white">
-  <div class="flex items-center mb-6">
-    <button (click)="onBack()" class="text-yellow-400 hover:text-yellow-500 mr-4">← Back</button>
-    <h2 class="text-xl font-semibold">Configure {{ selectedVehicle.name }}</h2>
-  </div>
+  @if (!settings) {
+    <div class="flex items-center mb-6">
+      <button (click)="onBack()" class="text-yellow-400 hover:text-yellow-500 mr-4">← Back</button>
+    </div>
+  }
 
   <div class="bg-gray-800 rounded-lg p-6">
     <h3 class="text-lg font-semibold text-yellow-400 mb-4">Global Settings</h3>
@@ -12,14 +13,14 @@
       <div>
         <div class="flex justify-between items-center mb-2">
           <label class="text-gray-300">ABS</label>
-          <span class="text-yellow-400">{{ settings.abs }}</span>
+          <span class="text-yellow-400">{{ currentSettings.abs }}</span>
         </div>
         <input
           type="range"
-          [(ngModel)]="settings.abs"
-          (ngModelChange)="onSettingsChange()"
+          [(ngModel)]="currentSettings.abs"
           [min]="minValue"
           [max]="maxValue"
+          [disabled]="isReadOnly"
           class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
@@ -28,14 +29,14 @@
       <div>
         <div class="flex justify-between items-center mb-2">
           <label class="text-gray-300">Drift Assist</label>
-          <span class="text-yellow-400">{{ settings.drift_assist }}</span>
+          <span class="text-yellow-400">{{ currentSettings.drift_assist }}</span>
         </div>
         <input
           type="range"
-          [(ngModel)]="settings.drift_assist"
-          (ngModelChange)="onSettingsChange()"
+          [(ngModel)]="currentSettings.drift_assist"
           [min]="minValue"
           [max]="maxValue"
+          [disabled]="isReadOnly"
           class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
@@ -44,14 +45,14 @@
       <div>
         <div class="flex justify-between items-center mb-2">
           <label class="text-gray-300">ESP</label>
-          <span class="text-yellow-400">{{ settings.esp }}</span>
+          <span class="text-yellow-400">{{ currentSettings.esp }}</span>
         </div>
         <input
           type="range"
-          [(ngModel)]="settings.esp"
-          (ngModelChange)="onSettingsChange()"
+          [(ngModel)]="currentSettings.esp"
           [min]="minValue"
           [max]="maxValue"
+          [disabled]="isReadOnly"
           class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
@@ -60,26 +61,28 @@
       <div>
         <div class="flex justify-between items-center mb-2">
           <label class="text-gray-300">Traction Control</label>
-          <span class="text-yellow-400">{{ settings.traction_control }}</span>
+          <span class="text-yellow-400">{{ currentSettings.traction_control }}</span>
         </div>
         <input
           type="range"
-          [(ngModel)]="settings.traction_control"
-          (ngModelChange)="onSettingsChange()"
+          [(ngModel)]="currentSettings.traction_control"
           [min]="minValue"
           [max]="maxValue"
+          [disabled]="isReadOnly"
           class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
-    </div>
 
-    <div class="mt-8 flex justify-end">
-      <button
-        (click)="onNext()"
-        class="bg-yellow-400 text-gray-900 py-2 px-6 rounded-lg hover:bg-yellow-500 transition-colors"
-      >
-        Next →
-      </button>
+      @if (!settings) {
+        <div class="mt-8 flex justify-end">
+          <button
+            (click)="onNext()"
+            class="bg-yellow-400 text-gray-900 py-2 px-6 rounded-lg hover:bg-yellow-500 transition-colors"
+          >
+            Next →
+          </button>
+        </div>
+      }
     </div>
   </div>
 </div>
