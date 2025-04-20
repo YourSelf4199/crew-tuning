@@ -5,7 +5,6 @@ import { AuthService } from '../../services/auth.service';
 import { CarActionsPopupComponent } from '../../components/dashboard/car-actions-popup/car-actions-popup.component';
 import { VehicleConfiguration } from '../../models/vehicle-configuration.model';
 import { Router } from '@angular/router';
-import { CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway';
 
 @Component({
   selector: 'app-dashboard',
@@ -74,8 +73,24 @@ export class DashboardComponent implements OnInit {
   }
 
   onDeleteConfig(config: VehicleConfiguration) {
-    // Will be implemented later
-    this.selectedConfig = null;
+    if (!config.vehicle_images_names_id) {
+      console.error('No vehicle_images_names_id found in config');
+      return;
+    }
+
+    const id = parseInt(config.vehicle_images_names_id, 10);
+
+    this.isLoading = true;
+    this.vehicleConfigurationService.deleteVehicleConfiguration(id).subscribe({
+      next: () => {
+        console.log('Configuration deleted successfully');
+        this.onClosePopup();
+      },
+      error: (error) => {
+        console.error('Error deleting configuration:', error);
+        this.isLoading = false;
+      },
+    });
   }
 
   onClosePopup() {

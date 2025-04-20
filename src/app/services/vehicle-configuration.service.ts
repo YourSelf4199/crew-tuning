@@ -11,6 +11,7 @@ import {
 import { S3Service } from './s3.service';
 import { map, switchMap } from 'rxjs/operators';
 import { Observable, forkJoin } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 interface GetVehicleConfigurationsResponse {
   vehicle_configuration: Array<{
@@ -142,6 +143,35 @@ const GET_SPECIFIC_SETTINGS = gql`
       susp_reb_rear
       tire_grip_front
       tire_grip_rear
+    }
+  }
+`;
+
+const DELETE_GLOBAL_SETTINGS = gql`
+  mutation DeleteGlobalSettings($id: uuid!) {
+    delete_vehicle_global_settings_by_pk(id: $id) {
+      id
+    }
+  }
+`;
+
+const DELETE_SPECIFIC_SETTINGS = gql`
+  mutation DeleteSpecificSettings($id: uuid!) {
+    delete_vehicle_specific_settings_by_pk(id: $id) {
+      id
+    }
+  }
+`;
+
+const DELETE_VEHICLE_CONFIGURATION = gql`
+  mutation DeleteVehicleConfiguration($vehicle_images_names_id: Int!, $cognito_sub_id: String!) {
+    delete_vehicle_configuration(
+      where: {
+        vehicle_images_names_id: { _eq: $vehicle_images_names_id }
+        cognito_sub_id: { _eq: $cognito_sub_id }
+      }
+    ) {
+      affected_rows
     }
   }
 `;
@@ -380,6 +410,60 @@ export class VehicleConfigurationService {
               vehicle_global_settings: globalSettings,
               vehicle_specific_settings: specificSettings,
             })),
+          );
+        }),
+      );
+  }
+
+  deleteVehicleConfiguration(vehicle_images_names_id: number) {
+    return this.apollo
+      .query<{
+        vehicle_configuration: Array<{
+          id: string;
+          global_settings_id: string;
+          specific_settings_id: string;
+          cognito_sub_id: string;
+        }>;
+      }>({
+        query: GET_VEHICLE_CONFIGURATION,
+        variables: { vehicle_images_names_id },
+        fetchPolicy: 'network-only',
+      })
+      .pipe(
+        switchMap((result) => {
+          const config = result.data.vehicle_configuration[0];
+
+          if (!config) {
+            console.error('Service: Configuration not found');
+            throw new Error('Configuration not found');
+          }
+
+          // Delete global settings
+          const deleteGlobalSettings$ = this.apollo.mutate({
+            mutation: DELETE_GLOBAL_SETTINGS,
+            variables: { id: config.global_settings_id },
+            refetchQueries: ['GetVehicleConfigurations'],
+          });
+
+          // Delete specific settings
+          const deleteSpecificSettings$ = this.apollo.mutate({
+            mutation: DELETE_SPECIFIC_SETTINGS,
+            variables: { id: config.specific_settings_id },
+            refetchQueries: ['GetVehicleConfigurations'],
+          });
+
+          // First delete both settings, then delete the configuration
+          return forkJoin([deleteGlobalSettings$, deleteSpecificSettings$]).pipe(
+            switchMap(() => {
+              return this.apollo.mutate({
+                mutation: DELETE_VEHICLE_CONFIGURATION,
+                variables: {
+                  vehicle_images_names_id,
+                  cognito_sub_id: config.cognito_sub_id,
+                },
+                refetchQueries: ['GetVehicleConfigurations'],
+              });
+            }),
           );
         }),
       );

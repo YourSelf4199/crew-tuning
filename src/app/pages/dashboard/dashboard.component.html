@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-bold text-yellow-400">My Vehicle Configurations</h1>
   </div>
 
-  @if (configurations.length === 0) {
+  @if (configurations.length === 0 && !isLoading) {
     <h2 class="text-2xl font-bold text-yellow-400">
       No vehicle configurations has been added yet!
     </h2>
