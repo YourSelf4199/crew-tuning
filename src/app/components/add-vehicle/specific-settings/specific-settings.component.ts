@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VehicleImage } from '../../../models/vehicle.model';
@@ -13,11 +13,13 @@ import { SpecificSettings } from '../../../models/settings.model';
 })
 export class SpecificSettingsComponent {
   @Input() selectedVehicle!: VehicleImage;
+  @Input() isReadOnly = false;
+  @Input() settings?: SpecificSettings;
   @Output() settingsChange = new EventEmitter<SpecificSettings>();
   @Output() save = new EventEmitter<SpecificSettings>();
   @Output() back = new EventEmitter<void>();
 
-  @Input() settings: SpecificSettings = {
+  private _settings: SpecificSettings = {
     aero_distribution: 0,
     arb_front: 0,
     arb_rear: 0,
@@ -34,13 +36,27 @@ export class SpecificSettingsComponent {
     tire_grip_rear: 0,
   };
 
+  get currentSettings(): SpecificSettings {
+    return this.isReadOnly ? this.settings || this._settings : this._settings;
+  }
+
   minValue = -10;
   maxValue = 10;
 
   isLoading = false;
 
+  toggleEditMode() {
+    this.isReadOnly = !this.isReadOnly;
+    if (!this.isReadOnly && this.settings) {
+      // When entering edit mode, create a copy of the input settings
+      this._settings = { ...this.settings };
+    }
+  }
+
   onSettingsChange() {
-    this.settingsChange.emit(this.settings);
+    if (!this.isReadOnly) {
+      this.settingsChange.emit(this._settings);
+    }
   }
 
   onBack() {
@@ -48,7 +64,9 @@ export class SpecificSettingsComponent {
   }
 
   onSave() {
-    this.isLoading = true;
-    this.save.emit(this.settings);
+    if (!this.isReadOnly) {
+      this.isLoading = true;
+      this.save.emit(this._settings);
+    }
   }
 }
