@@ -8,12 +8,13 @@ export const rootGuard: CanActivateFn = async (route) => {
 
   try {
     const session = await authService.getCurrentSession();
-    // Only redirect if we have a session and we're not in the process of signing out
-    if (session && !authService.isSigningOut) {
+    // Check if we have valid tokens in the session
+    if (session?.tokens?.idToken && !authService.isSigningOut) {
       return router.createUrlTree(['/app/dashboard']);
     }
     return true;
   } catch (error) {
+    // If there's an error getting the session, allow access to root
     return true;
   }
 };
