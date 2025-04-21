@@ -1,35 +1,35 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-gray-800 p-6 rounded-lg w-96">
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 sm:p-0">
+  <div class="bg-gray-800 p-4 sm:p-6 rounded-lg w-full sm:w-96">
     <div class="mb-4">
       <img
         [src]="selectedConfig.signedUrl"
         [alt]="selectedConfig.vehicle_images_name.name"
-        class="w-full h-48 object-cover rounded mb-4"
+        class="w-full h-32 sm:h-48 object-cover rounded mb-4"
         (error)="handleImageError($event)"
       />
-      <h3 class="text-xl font-semibold text-yellow-400 mb-2">
+      <h3 class="text-lg sm:text-xl font-semibold text-yellow-400 mb-2">
         {{ selectedConfig.vehicle_images_name.name }}
       </h3>
-      <p class="text-gray-300">
+      <p class="text-sm sm:text-base text-gray-300">
         Vehicle Type: {{ selectedConfig.vehicle_images_name.vehicle_type_code }}
       </p>
     </div>
-    <div class="flex justify-end space-x-4">
+    <div class="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-4 sm:space-x-4">
       <button
         (click)="onViewSettings.emit(selectedConfig)"
-        class="px-4 py-2 bg-yellow-400 text-gray-900 rounded hover:bg-yellow-500 transition-colors"
+        class="w-full sm:w-auto px-4 py-2 bg-yellow-400 text-gray-900 rounded hover:bg-yellow-500 transition-colors"
       >
         View settings
       </button>
       <button
         (click)="onDelete.emit(selectedConfig)"
-        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+        class="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
       >
         Delete
       </button>
       <button
         (click)="onClose.emit()"
-        class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+        class="w-full sm:w-auto px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
       >
         Cancel
       </button>

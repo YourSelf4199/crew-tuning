@@ -1,6 +1,6 @@
-<div class="p-6 text-white">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-yellow-400">Select Vehicle</h1>
+<div class="sm:p-6 text-white">
+  <div class="mb-4 sm:mb-8">
+    <h1 class="text-xl sm:text-3xl font-bold text-yellow-400">Select Vehicle</h1>
   </div>
 
   <div>
@@ -9,25 +9,39 @@
         Loading vehicle images...
       </div>
     } @else if (error) {
-      <div class="bg-red-500 text-white p-4 rounded-lg mb-6">
+      <div class="bg-red-500 text-white p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
         {{ error }}
       </div>
     } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @for (image of vehicleImages; track image.id) {
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
+        @for (vehicle of vehicleImages; track vehicle.vehicleImage.id) {
           <div
-            class="bg-gray-800 p-6 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
-            (click)="onVehicleSelected(image)"
+            class="bg-gray-800 p-2 sm:p-6 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
+            (click)="onVehicleSelected(vehicle)"
           >
-            <img
-              [src]="image.signedUrl || 'assets/images/placeholder.jpg'"
-              [alt]="image.name"
-              class="w-full h-48 object-cover rounded-lg mb-4"
-              (error)="handleImageError($event, image)"
-            />
+            <div class="relative">
+              <img
+                [src]="vehicle.vehicleImage.signedUrl || 'assets/images/placeholder.jpg'"
+                [alt]="vehicle.vehicleImage.name"
+                class="w-full h-28 sm:h-48 object-cover rounded-lg mb-2 sm:mb-4"
+                (error)="handleImageError($event, vehicle)"
+              />
+              <span
+                class="absolute top-0 right-1 sm:right-2 text-transparent text-lg sm:text-2xl font-extrabold"
+                [style.-webkit-text-stroke]="getColorForLabel(vehicle.vehicleCategory.slug)"
+                >{{ vehicle.vehicleType.code }}</span
+              >
+            </div>
             <div>
-              <h3 class="text-xl font-semibold text-yellow-400 mb-2">{{ image.name }}</h3>
-              <p class="text-gray-300">Type: {{ image.vehicle_type_code }}</p>
+              <h3 class="text-sm sm:text-xl font-semibold text-yellow-400 mb-1 sm:mb-2">
+                {{ vehicle.vehicleImage.name }}
+              </h3>
+              <p class="text-xs sm:text-base text-gray-300">
+                Type: {{ vehicle.vehicleType.label }}
+              </p>
+              <p class="text-xs sm:text-base text-gray-300">
+                Category: {{ vehicle.vehicleCategory.label }}
+              </p>
             </div>
           </div>
         }

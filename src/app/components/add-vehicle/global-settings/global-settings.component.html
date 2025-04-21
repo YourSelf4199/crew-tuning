@@ -1,19 +1,24 @@
-<div class="p-6 text-white">
+<div class="sm:p-6 text-white">
   @if (!settings) {
-    <div class="flex items-center mb-6">
-      <button (click)="onBack()" class="text-yellow-400 hover:text-yellow-500 mr-4">← Back</button>
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <button
+        (click)="onBack()"
+        class="text-yellow-400 hover:text-yellow-500 mr-2 sm:mr-4 text-sm sm:text-base"
+      >
+        ← Back
+      </button>
     </div>
   }
 
-  <div class="bg-gray-800 rounded-lg p-6">
-    <h3 class="text-lg font-semibold text-yellow-400 mb-4">Global Settings</h3>
+  <div class="bg-gray-800 rounded-lg p-3 sm:p-6">
+    <h3 class="text-base sm:text-lg font-semibold text-yellow-400 mb-3 sm:mb-4">Global Settings</h3>
 
-    <div class="space-y-6">
-      <!-- ABS Setting -->
+    <div class="grid grid-cols-1 gap-3 sm:gap-6">
+      <!-- ABS -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">ABS</label>
-          <span class="text-yellow-400">{{ currentSettings.abs }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">ABS</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{ currentSettings.abs }}</span>
         </div>
         <input
           type="range"
@@ -21,15 +26,18 @@
           [min]="minValue"
           [max]="maxValue"
           [disabled]="isReadOnly"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          (ngModelChange)="onSettingsChange()"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
-      <!-- Drift Assist Setting -->
+      <!-- Drift Assist -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Drift Assist</label>
-          <span class="text-yellow-400">{{ currentSettings.drift_assist }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Drift Assist</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.drift_assist
+          }}</span>
         </div>
         <input
           type="range"
@@ -37,15 +45,16 @@
           [min]="minValue"
           [max]="maxValue"
           [disabled]="isReadOnly"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          (ngModelChange)="onSettingsChange()"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
-      <!-- ESP Setting -->
+      <!-- ESP -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">ESP</label>
-          <span class="text-yellow-400">{{ currentSettings.esp }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">ESP</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{ currentSettings.esp }}</span>
         </div>
         <input
           type="range"
@@ -53,15 +62,18 @@
           [min]="minValue"
           [max]="maxValue"
           [disabled]="isReadOnly"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          (ngModelChange)="onSettingsChange()"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
-      <!-- Traction Control Setting -->
+      <!-- Traction Control -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Traction Control</label>
-          <span class="text-yellow-400">{{ currentSettings.traction_control }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Traction Control</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.traction_control
+          }}</span>
         </div>
         <input
           type="range"
@@ -69,20 +81,21 @@
           [min]="minValue"
           [max]="maxValue"
           [disabled]="isReadOnly"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          (ngModelChange)="onSettingsChange()"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
-
-      @if (!settings) {
-        <div class="mt-8 flex justify-end">
-          <button
-            (click)="onNext()"
-            class="bg-yellow-400 text-gray-900 py-2 px-6 rounded-lg hover:bg-yellow-500 transition-colors"
-          >
-            Next →
-          </button>
-        </div>
-      }
     </div>
+
+    @if (!settings) {
+      <div class="mt-6 sm:mt-8 flex justify-end">
+        <button
+          (click)="onNext()"
+          class="bg-yellow-400 text-gray-900 py-2 px-4 sm:px-6 rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base"
+        >
+          Next →
+        </button>
+      </div>
+    }
   </div>
 </div>

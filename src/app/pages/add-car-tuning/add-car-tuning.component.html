@@ -18,7 +18,7 @@
       *ngIf="showSpecificSettings"
       [selectedVehicle]="selectedVehicle"
       (settingsChange)="onSpecificSettingsChanged($event)"
-      (save)="onSaveSpecificSettings($event)"
+      (save)="onSaveSettings()"
       (back)="onBack()"
     ></app-specific-settings>
   }

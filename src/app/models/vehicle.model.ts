@@ -1,3 +1,9 @@
+export interface Vehicle {
+  vehicleImage: VehicleImage;
+  vehicleType: VehicleType;
+  vehicleCategory: VehicleCategory;
+}
+
 export interface VehicleImage {
   id: string;
   name: string;
