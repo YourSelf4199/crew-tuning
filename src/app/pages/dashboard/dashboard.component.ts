@@ -5,13 +5,16 @@ import { AuthService } from '../../services/auth.service';
 import { CarActionsPopupComponent } from '../../components/dashboard/car-actions-popup/car-actions-popup.component';
 import { VehicleConfiguration } from '../../models/vehicle-configuration.model';
 import { Router } from '@angular/router';
+import { getVehicleCategoryColor } from '../../utils/vehicle.utils';
+import { handleS3ImageError } from '../../utils/s3.utils';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, CarActionsPopupComponent],
+  imports: [CommonModule, CarActionsPopupComponent, LoadingSpinnerComponent],
 })
 export class DashboardComponent implements OnInit {
   configurations: VehicleConfiguration[] = [];
@@ -56,12 +59,12 @@ export class DashboardComponent implements OnInit {
   }
 
   handleImageError(event: Event, config: VehicleConfiguration): void {
-    if (this.failedImages.has(config.vehicle_images_name.id)) return;
-
-    const imgElement = event.target as HTMLImageElement;
-    this.failedImages.add(config.vehicle_images_name.id);
-    imgElement.src = 'assets/images/placeholder.jpg';
-    console.error(`Failed to load image: ${config.vehicle_images_name.name}`);
+    handleS3ImageError(
+      event,
+      config.vehicle_images_name.id,
+      config.vehicle_images_name.name,
+      this.failedImages,
+    );
   }
 
   onConfigSelected(config: VehicleConfiguration) {
@@ -95,5 +98,9 @@ export class DashboardComponent implements OnInit {
 
   onClosePopup() {
     this.selectedConfig = null;
+  }
+
+  getColorForCategory(label: string): string {
+    return getVehicleCategoryColor(label);
   }
 }

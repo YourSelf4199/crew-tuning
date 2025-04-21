@@ -10,9 +10,7 @@
   }
 
   @if (isLoading) {
-    <div class="flex justify-center items-center h-64">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#fbbf24]"></div>
-    </div>
+    <app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
   } @else if (error) {
     <div class="bg-red-500 text-white p-4 rounded-lg mb-6">
       {{ error }}
@@ -21,21 +19,29 @@
     <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
       @for (config of configurations; track config.id) {
         <div
-          class="bg-gray-800 p-3 sm:p-6 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
+          class="bg-gray-800 p-2 sm:p-6 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
           (click)="onConfigSelected(config)"
         >
-          <img
-            [src]="config.signedUrl || 'assets/images/placeholder.jpg'"
-            [alt]="config.vehicle_images_name.name"
-            class="w-full h-32 sm:h-48 object-cover rounded-lg mb-2 sm:mb-4"
-            (error)="handleImageError($event, config)"
-          />
+          <div class="relative">
+            <img
+              [src]="config.vehicle_images_name.signedUrl || 'assets/images/placeholder.jpg'"
+              [alt]="config.vehicle_images_name.name"
+              class="w-full h-28 sm:h-48 object-cover rounded-lg mb-2 sm:mb-4"
+              (error)="handleImageError($event, config)"
+            />
+            <span
+              class="absolute top-0 right-1 sm:right-2 text-transparent text-lg sm:text-2xl font-extrabold"
+              [style.-webkit-text-stroke]="getColorForCategory(config.vehicleCategory.slug)"
+              >{{ config.vehicleType.code }}</span
+            >
+          </div>
           <div>
-            <h3 class="text-base sm:text-xl font-semibold text-yellow-400 mb-1 sm:mb-2">
+            <h3 class="text-sm sm:text-xl font-semibold text-yellow-400 mb-1 sm:mb-2">
               {{ config.vehicle_images_name.name }}
             </h3>
-            <p class="text-sm sm:text-base text-gray-300">
-              Vehicle Type: {{ config.vehicle_images_name.vehicle_type_code }}
+            <p class="text-xs sm:text-base text-gray-300">Type: {{ config.vehicleType.label }}</p>
+            <p class="text-xs sm:text-base text-gray-300">
+              Category: {{ config.vehicleCategory.label }}
             </p>
           </div>
         </div>

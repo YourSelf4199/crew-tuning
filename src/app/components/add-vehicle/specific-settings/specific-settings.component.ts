@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VehicleImage } from '../../../models/vehicle.model';
 import { SpecificSettings } from '../../../models/settings.model';
+import { LoadingButtonComponent } from '../../loading-button/loading-button.component';
 
 @Component({
   selector: 'app-specific-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoadingButtonComponent],
   templateUrl: './specific-settings.component.html',
   styleUrls: ['./specific-settings.component.css'],
 })

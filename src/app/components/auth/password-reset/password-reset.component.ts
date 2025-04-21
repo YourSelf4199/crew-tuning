@@ -7,13 +7,14 @@ import {
   EmailValidatorDirective,
   PasswordValidatorDirective,
 } from '../../../directives/validators';
+import { LoadingButtonComponent } from '../../loading-button/loading-button.component';
 
 @Component({
   selector: 'app-password-reset',
   templateUrl: './password-reset.component.html',
   styleUrls: ['./password-reset.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LoadingButtonComponent],
 })
 export class PasswordResetComponent {
   @Output() switchToLogin = new EventEmitter<void>();
@@ -27,7 +28,6 @@ export class PasswordResetComponent {
   constructor(
     private fb: FormBuilder,
     public authService: AuthService,
-    private router: Router,
     private emailValidator: EmailValidatorDirective,
     private passwordValidator: PasswordValidatorDirective,
   ) {
