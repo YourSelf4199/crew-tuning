@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VehicleService } from '../../../services/vehicle.service';
-import { VehicleImage } from '../../../models/vehicle.model';
+import { Vehicle, VehicleImage } from '../../../models/vehicle.model';
 
 @Component({
   selector: 'app-select-vehicle',
@@ -11,9 +11,9 @@ import { VehicleImage } from '../../../models/vehicle.model';
   styleUrls: ['./select-vehicle.component.css'],
 })
 export class SelectVehicleComponent {
-  @Output() vehicleSelected = new EventEmitter<VehicleImage>();
+  @Output() vehicleSelected = new EventEmitter<Vehicle>();
 
-  vehicleImages: VehicleImage[] = [];
+  vehicleImages: Vehicle[] = [];
   isLoading = true;
   error: string | null = null;
   private failedImages = new Set<string>();
@@ -38,16 +38,16 @@ export class SelectVehicleComponent {
     });
   }
 
-  onVehicleSelected(vehicle: VehicleImage): void {
+  onVehicleSelected(vehicle: Vehicle): void {
     this.vehicleSelected.emit(vehicle);
   }
 
-  handleImageError(event: Event, image: VehicleImage): void {
-    if (this.failedImages.has(image.id)) return;
+  handleImageError(event: Event, vehicle: Vehicle): void {
+    if (this.failedImages.has(vehicle.vehicleImage.id)) return;
 
     const imgElement = event.target as HTMLImageElement;
-    this.failedImages.add(image.id);
+    this.failedImages.add(vehicle.vehicleImage.id);
     imgElement.src = 'assets/images/placeholder.jpg';
-    console.error(`Failed to load image: ${image.name}`);
+    console.error(`Failed to load image: ${vehicle.vehicleImage.name}`);
   }
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { VehicleService } from '../../services/vehicle.service';
-import { VehicleImage, VehicleType } from '../../models/vehicle.model';
+import { Vehicle, VehicleImage, VehicleType } from '../../models/vehicle.model';
 import { GlobalSettings, SpecificSettings } from '../../models/settings.model';
 import { SelectVehicleComponent } from '../../components/add-vehicle/select-vehicle/select-vehicle.component';
 import { GlobalSettingsComponent } from '../../components/add-vehicle/global-settings/global-settings.component';
@@ -28,7 +28,7 @@ import { AuthService } from '../../services/auth.service';
 export class AddCarTuningComponent {
   @ViewChild(SpecificSettingsComponent) specificSettingsComponent!: SpecificSettingsComponent;
 
-  vehicleImages: VehicleImage[] = [];
+  vehicleImages: Vehicle[] = [];
   selectedVehicle: VehicleImage | null = null;
   showGlobalSettings = false;
   showSpecificSettings = false;
@@ -85,12 +85,12 @@ export class AddCarTuningComponent {
     });
   }
 
-  async onVehicleSelected(vehicle: VehicleImage) {
-    this.selectedVehicle = vehicle;
+  async onVehicleSelected(vehicle: Vehicle) {
+    this.selectedVehicle = vehicle.vehicleImage;
     this.showGlobalSettings = true;
   }
 
-  async onSaveSpecificSettings(settings: SpecificSettings): Promise<void> {
+  async onSaveSettings(): Promise<void> {
     if (!this.selectedVehicle) {
       console.error('No vehicle selected');
       return;
@@ -125,7 +125,7 @@ export class AddCarTuningComponent {
           }
 
           // Then, insert specific settings
-          this.vehicleConfigurationService.insertSpecificSettings(settings).subscribe({
+          this.vehicleConfigurationService.insertSpecificSettings(this.specificSettings).subscribe({
             next: (specificResult) => {
               const specificSettingsId =
                 specificResult.data?.insert_vehicle_specific_settings_one?.id;
@@ -190,10 +190,13 @@ export class AddCarTuningComponent {
   }
 
   onGlobalSettingsChanged(settings: GlobalSettings): void {
+    console.log(settings);
+
     this.globalSettings = settings;
   }
 
   onSpecificSettingsChanged(settings: SpecificSettings): void {
+    console.log(settings);
     this.specificSettings = settings;
   }
 
