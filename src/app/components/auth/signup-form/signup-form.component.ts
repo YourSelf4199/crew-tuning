@@ -1,15 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-  AbstractControl,
-  ValidationErrors,
-  ValidatorFn,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
-import { UserService } from '../../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
@@ -17,13 +8,14 @@ import {
   NameValidatorDirective,
   PasswordValidatorDirective,
 } from '../../../directives/validators';
+import { LoadingButtonComponent } from '../../loading-button/loading-button.component';
 
 @Component({
   selector: 'app-signup-form',
   templateUrl: './signup-form.component.html',
   styleUrls: ['./signup-form.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LoadingButtonComponent],
 })
 export class SignupFormComponent {
   @Output() signupSuccess = new EventEmitter<void>();
@@ -35,7 +27,6 @@ export class SignupFormComponent {
   constructor(
     private fb: FormBuilder,
     public authService: AuthService,
-    private userService: UserService,
     private router: Router,
     private emailValidator: EmailValidatorDirective,
     private nameValidator: NameValidatorDirective,

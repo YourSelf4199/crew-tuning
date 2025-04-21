@@ -190,22 +190,10 @@ export class AddCarTuningComponent {
   }
 
   onGlobalSettingsChanged(settings: GlobalSettings): void {
-    console.log(settings);
-
     this.globalSettings = settings;
   }
 
   onSpecificSettingsChanged(settings: SpecificSettings): void {
-    console.log(settings);
     this.specificSettings = settings;
-  }
-
-  handleImageError(event: Event, image: VehicleImage): void {
-    if (this.failedImages.has(image.id)) return;
-
-    const imgElement = event.target as HTMLImageElement;
-    this.failedImages.add(image.id);
-    imgElement.src = 'assets/images/placeholder.jpg';
-    console.error(`Failed to load image: ${image.name}`);
   }
 }

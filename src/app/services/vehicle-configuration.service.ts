@@ -10,171 +10,28 @@ import {
 } from '../models/vehicle-response.model';
 import { S3Service } from './s3.service';
 import { map, switchMap } from 'rxjs/operators';
-import { Observable, forkJoin } from 'rxjs';
-import { AuthService } from '../services/auth.service';
-
-interface GetVehicleConfigurationsResponse {
-  vehicle_configuration: Array<{
-    id: string;
-    vehicle_images_names_id: string;
-    vehicle_types_id: string;
-    cognito_sub_id: string;
-    global_settings_id: string;
-    specific_settings_id: string;
-    specific_settings_boat_id: string | null;
-    vehicle_images_name: {
-      id: string;
-      name: string;
-      s3_image_url: string;
-      vehicle_type_code: string;
-    };
-  }>;
-}
-
-const INSERT_GLOBAL_SETTINGS = gql`
-  mutation InsertGlobalSettings($settings: vehicle_global_settings_insert_input!) {
-    insert_vehicle_global_settings_one(object: $settings) {
-      id
-    }
-  }
-`;
-
-const INSERT_SPECIFIC_SETTINGS = gql`
-  mutation InsertSpecificSettings($settings: vehicle_specific_settings_insert_input!) {
-    insert_vehicle_specific_settings_one(object: $settings) {
-      id
-    }
-  }
-`;
-
-const INSERT_VEHICLE_CONFIGURATION = gql`
-  mutation InsertVehicleConfiguration($config: vehicle_configuration_insert_input!) {
-    insert_vehicle_configuration_one(object: $config) {
-      id
-    }
-  }
-`;
-
-const GET_VEHICLE_CONFIGURATIONS = gql`
-  query GetVehicleConfigurations($cognito_sub_id: String!) {
-    vehicle_configuration(where: { cognito_sub_id: { _eq: $cognito_sub_id } }) {
-      id
-      vehicle_images_names_id
-      vehicle_types_id
-      cognito_sub_id
-      global_settings_id
-      specific_settings_id
-      specific_settings_boat_id
-      vehicle_images_name {
-        id
-        name
-        s3_image_url
-        vehicle_type_code
-      }
-    }
-  }
-`;
-
-const UPDATE_GLOBAL_SETTINGS = gql`
-  mutation UpdateGlobalSettings($id: uuid!, $settings: vehicle_global_settings_set_input!) {
-    update_vehicle_global_settings_by_pk(pk_columns: { id: $id }, _set: $settings) {
-      id
-    }
-  }
-`;
-
-const UPDATE_SPECIFIC_SETTINGS = gql`
-  mutation UpdateSpecificSettings($id: uuid!, $settings: vehicle_specific_settings_set_input!) {
-    update_vehicle_specific_settings_by_pk(pk_columns: { id: $id }, _set: $settings) {
-      id
-    }
-  }
-`;
-
-const UPDATE_VEHICLE_CONFIGURATION = gql`
-  mutation UpdateVehicleConfiguration($id: uuid!, $config: vehicle_configuration_set_input!) {
-    update_vehicle_configuration_by_pk(pk_columns: { id: $id }, _set: $config) {
-      id
-    }
-  }
-`;
-
-const GET_VEHICLE_CONFIGURATION = gql`
-  query GetVehicleConfiguration($vehicle_images_names_id: Int!) {
-    vehicle_configuration(where: { vehicle_images_names_id: { _eq: $vehicle_images_names_id } }) {
-      id
-      vehicle_images_names_id
-      vehicle_types_id
-      cognito_sub_id
-      global_settings_id
-      specific_settings_id
-      specific_settings_boat_id
-    }
-  }
-`;
-
-const GET_GLOBAL_SETTINGS = gql`
-  query GetGlobalSettings($id: uuid!) {
-    vehicle_global_settings(where: { id: { _eq: $id } }) {
-      id
-      abs
-      drift_assist
-      esp
-      traction_control
-    }
-  }
-`;
-
-const GET_SPECIFIC_SETTINGS = gql`
-  query GetSpecificSettings($id: uuid!) {
-    vehicle_specific_settings(where: { id: { _eq: $id } }) {
-      id
-      aero_distribution
-      arb_front
-      arb_rear
-      brake_balance
-      brake_power
-      gearbox
-      susp_comp_front
-      susp_comp_rear
-      susp_geom_camber_front
-      susp_geom_camber_rear
-      susp_reb_front
-      susp_reb_rear
-      tire_grip_front
-      tire_grip_rear
-    }
-  }
-`;
-
-const DELETE_GLOBAL_SETTINGS = gql`
-  mutation DeleteGlobalSettings($id: uuid!) {
-    delete_vehicle_global_settings_by_pk(id: $id) {
-      id
-    }
-  }
-`;
-
-const DELETE_SPECIFIC_SETTINGS = gql`
-  mutation DeleteSpecificSettings($id: uuid!) {
-    delete_vehicle_specific_settings_by_pk(id: $id) {
-      id
-    }
-  }
-`;
-
-const DELETE_VEHICLE_CONFIGURATION = gql`
-  mutation DeleteVehicleConfiguration($vehicle_images_names_id: Int!, $cognito_sub_id: String!) {
-    delete_vehicle_configuration(
-      where: {
-        vehicle_images_names_id: { _eq: $vehicle_images_names_id }
-        cognito_sub_id: { _eq: $cognito_sub_id }
-      }
-    ) {
-      affected_rows
-    }
-  }
-`;
+import { Observable, forkJoin, from } from 'rxjs';
+import { VehicleConfiguration } from '../models/vehicle-configuration.model';
+import { VehicleCategory, VehicleType } from '../models/vehicle.model';
+import {
+  UPDATE_GLOBAL_SETTINGS,
+  UPDATE_SPECIFIC_SETTINGS,
+} from '../graphql/mutations/settings.mutations';
+import {
+  GET_VEHICLE_CONFIGURATIONS,
+  GET_GLOBAL_SETTINGS,
+  GET_SPECIFIC_SETTINGS,
+  GET_VEHICLE_CONFIGURATION,
+} from '../graphql/queries/vehicle_configuration.queries';
+import {
+  INSERT_GLOBAL_SETTINGS,
+  INSERT_SPECIFIC_SETTINGS,
+  INSERT_VEHICLE_CONFIGURATION,
+  UPDATE_VEHICLE_CONFIGURATION,
+  DELETE_GLOBAL_SETTINGS,
+  DELETE_SPECIFIC_SETTINGS,
+  DELETE_VEHICLE_CONFIGURATION,
+} from '../graphql/mutations/vehicle_configuration.mutations';
 
 @Injectable({
   providedIn: 'root',
@@ -185,29 +42,55 @@ export class VehicleConfigurationService {
     private s3Service: S3Service,
   ) {}
 
-  getVehicleConfigurations(cognito_sub_id: string) {
+  getVehicleConfigurations(cognito_sub_id: string): Observable<VehicleConfiguration[]> {
     return this.apollo
-      .watchQuery<GetVehicleConfigurationsResponse>({
+      .watchQuery<{
+        vehicle_configuration: Array<
+          Omit<VehicleConfiguration, 'vehicle_type' | 'vehicle_category'>
+        >;
+        vehicle_types: VehicleType[];
+        vehicle_category: VehicleCategory[];
+      }>({
         query: GET_VEHICLE_CONFIGURATIONS,
         variables: { cognito_sub_id },
         fetchPolicy: 'network-only',
       })
       .valueChanges.pipe(
-        map((result) => result.data.vehicle_configuration),
-        switchMap(async (configs) => {
-          const configsWithUrls = await Promise.all(
-            configs.map(async (config) => {
-              const signedUrl = await this.s3Service.getSignedUrl(
-                config.vehicle_images_name.s3_image_url,
-              );
-              return {
-                ...config,
-                signedUrl,
-              };
-            }),
-          );
-          return configsWithUrls;
+        map((result) => {
+          const { vehicle_configuration, vehicle_types, vehicle_category } = result.data;
+          return vehicle_configuration.map((config) => {
+            const type = vehicle_types.find(
+              (t) => t.code === config.vehicle_images_name.vehicle_type_code,
+            );
+            const category = type
+              ? vehicle_category.find((c) => c.id === parseInt(type.category_id))
+              : null;
+
+            return {
+              ...config,
+              vehicleType: type || ({} as VehicleType),
+              vehicleCategory: category || ({} as VehicleCategory),
+            };
+          });
         }),
+        switchMap((configurations) =>
+          from(
+            Promise.all(
+              configurations.map(async (config) => {
+                const signedUrl = await this.s3Service.getSignedUrl(
+                  config.vehicle_images_name.s3_image_url,
+                );
+                return {
+                  ...config,
+                  vehicle_images_name: {
+                    ...config.vehicle_images_name,
+                    signedUrl,
+                  },
+                };
+              }),
+            ),
+          ),
+        ),
       );
   }
 

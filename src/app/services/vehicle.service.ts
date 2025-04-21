@@ -5,38 +5,7 @@ import { Observable, map, from, switchMap, forkJoin, of } from 'rxjs';
 import { getUrl } from '@aws-amplify/storage';
 import { VehicleCategory, VehicleImage, VehicleType, Vehicle } from '../models/vehicle.model';
 import { S3Service } from './s3.service';
-
-const GET_VEHICLE_IMAGES = gql`
-  query GetVehicleImages {
-    vehicle_images_names {
-      id
-      name
-      s3_image_url
-      vehicle_type_code
-    }
-    vehicle_types {
-      id
-      code
-      label
-      category_id
-    }
-    vehicle_category {
-      id
-      label
-      slug
-    }
-  }
-`;
-
-const GET_VEHICLE_CATEGORIES = gql`
-  query GetVehicleCategory {
-    vehicle_category {
-      id
-      label
-      slug
-    }
-  }
-`;
+import { GET_VEHICLE_IMAGES, GET_VEHICLE_CATEGORIES } from '../graphql/queries/vehicle_queries';
 
 @Injectable({
   providedIn: 'root',
