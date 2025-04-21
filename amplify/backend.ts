@@ -10,7 +10,7 @@ const backend = defineBackend({
   storage,
 });
 
-const { cfnUserPool } = backend.auth.resources.cfnResources;
+const { cfnUserPool, cfnIdentityPool } = backend.auth.resources.cfnResources;
 cfnUserPool.policies = {
   passwordPolicy: {
     minimumLength: 8,
@@ -21,3 +21,5 @@ cfnUserPool.policies = {
     temporaryPasswordValidityDays: 20,
   },
 };
+
+cfnIdentityPool.allowUnauthenticatedIdentities = false;
