@@ -1,19 +1,28 @@
-<div class="p-6 text-white">
+<div class="sm:p-6 text-white">
   @if (!settings) {
-    <div class="flex items-center justify-between mb-6">
-      <button (click)="onBack()" class="text-yellow-400 hover:text-yellow-500 mr-4">← Back</button>
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <button
+        (click)="onBack()"
+        class="text-yellow-400 hover:text-yellow-500 mr-2 sm:mr-4 text-sm sm:text-base"
+      >
+        ← Back
+      </button>
     </div>
   }
 
-  <div class="bg-gray-800 rounded-lg p-6">
-    <h3 class="text-lg font-semibold text-yellow-400 mb-4">Specific Settings</h3>
+  <div class="bg-gray-800 rounded-lg p-3 sm:p-6">
+    <h3 class="text-base sm:text-lg font-semibold text-yellow-400 mb-3 sm:mb-4">
+      Specific Settings
+    </h3>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 gap-3 sm:gap-6">
       <!-- Aero Distribution -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Aero Distribution</label>
-          <span class="text-yellow-400">{{ currentSettings.aero_distribution }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Aero Distribution</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.aero_distribution
+          }}</span>
         </div>
         <input
           type="range"
@@ -22,15 +31,15 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- ARB Front -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">ARB Front</label>
-          <span class="text-yellow-400">{{ currentSettings.arb_front }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">ARB Front</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{ currentSettings.arb_front }}</span>
         </div>
         <input
           type="range"
@@ -39,15 +48,15 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- ARB Rear -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">ARB Rear</label>
-          <span class="text-yellow-400">{{ currentSettings.arb_rear }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">ARB Rear</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{ currentSettings.arb_rear }}</span>
         </div>
         <input
           type="range"
@@ -56,15 +65,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Brake Balance -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Brake Balance</label>
-          <span class="text-yellow-400">{{ currentSettings.brake_balance }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Brake Balance</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.brake_balance
+          }}</span>
         </div>
         <input
           type="range"
@@ -73,15 +84,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Brake Power -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Brake Power</label>
-          <span class="text-yellow-400">{{ currentSettings.brake_power }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Brake Power</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.brake_power
+          }}</span>
         </div>
         <input
           type="range"
@@ -90,15 +103,15 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Gearbox -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Gearbox</label>
-          <span class="text-yellow-400">{{ currentSettings.gearbox }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Gearbox</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{ currentSettings.gearbox }}</span>
         </div>
         <input
           type="range"
@@ -107,15 +120,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Suspension Compression Front -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Suspension Compression Front</label>
-          <span class="text-yellow-400">{{ currentSettings.susp_comp_front }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Suspension Compression Front</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.susp_comp_front
+          }}</span>
         </div>
         <input
           type="range"
@@ -124,15 +139,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Suspension Compression Rear -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Suspension Compression Rear</label>
-          <span class="text-yellow-400">{{ currentSettings.susp_comp_rear }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Suspension Compression Rear</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.susp_comp_rear
+          }}</span>
         </div>
         <input
           type="range"
@@ -141,15 +158,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Suspension Geometry Camber Front -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Suspension Geometry Camber Front</label>
-          <span class="text-yellow-400">{{ currentSettings.susp_geom_camber_front }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Suspension Geometry Camber Front</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.susp_geom_camber_front
+          }}</span>
         </div>
         <input
           type="range"
@@ -158,15 +177,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Suspension Geometry Camber Rear -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Suspension Geometry Camber Rear</label>
-          <span class="text-yellow-400">{{ currentSettings.susp_geom_camber_rear }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Suspension Geometry Camber Rear</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.susp_geom_camber_rear
+          }}</span>
         </div>
         <input
           type="range"
@@ -175,15 +196,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Suspension Rebound Front -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Suspension Rebound Front</label>
-          <span class="text-yellow-400">{{ currentSettings.susp_reb_front }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Suspension Rebound Front</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.susp_reb_front
+          }}</span>
         </div>
         <input
           type="range"
@@ -192,15 +215,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Suspension Rebound Rear -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Suspension Rebound Rear</label>
-          <span class="text-yellow-400">{{ currentSettings.susp_reb_rear }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Suspension Rebound Rear</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.susp_reb_rear
+          }}</span>
         </div>
         <input
           type="range"
@@ -209,15 +234,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Tire Grip Front -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Tire Grip Front</label>
-          <span class="text-yellow-400">{{ currentSettings.tire_grip_front }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Tire Grip Front</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.tire_grip_front
+          }}</span>
         </div>
         <input
           type="range"
@@ -226,15 +253,17 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
 
       <!-- Tire Grip Rear -->
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-gray-300">Tire Grip Rear</label>
-          <span class="text-yellow-400">{{ currentSettings.tire_grip_rear }}</span>
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <label class="text-sm sm:text-base text-gray-300">Tire Grip Rear</label>
+          <span class="text-sm sm:text-base text-yellow-400">{{
+            currentSettings.tire_grip_rear
+          }}</span>
         </div>
         <input
           type="range"
@@ -243,21 +272,21 @@
           [max]="maxValue"
           [disabled]="isReadOnly"
           (ngModelChange)="onSettingsChange()"
-          class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          class="w-full h-1.5 sm:h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
       </div>
     </div>
 
     @if (!settings) {
-      <div class="mt-8 flex justify-end">
+      <div class="mt-6 sm:mt-8 flex justify-end">
         <button
           (click)="onSave()"
           [disabled]="isLoading"
-          class="bg-yellow-400 text-gray-900 py-2 px-6 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          class="bg-yellow-400 text-gray-900 py-2 px-4 sm:px-6 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
         >
           <svg
             *ngIf="isLoading"
-            class="animate-spin h-5 w-5 text-gray-900"
+            class="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-gray-900"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

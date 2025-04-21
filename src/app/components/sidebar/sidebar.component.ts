@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -10,8 +10,33 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
+  isMobile = false;
+  isSidebarOpen = true;
+
   constructor(public authService: AuthService) {}
+
+  ngOnInit() {
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize() {
+    this.isMobile = window.innerWidth <= 768;
+    if (!this.isMobile) {
+      this.isSidebarOpen = true;
+    } else {
+      this.isSidebarOpen = false;
+    }
+  }
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
 
   async onSignOut() {
     try {

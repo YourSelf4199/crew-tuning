@@ -49,14 +49,14 @@ export class VehicleService {
 
   getVehicleImages(): Observable<Vehicle[]> {
     return this.apollo
-      .query<{
+      .watchQuery<{
         vehicle_images_names: VehicleImage[];
         vehicle_types: VehicleType[];
         vehicle_category: VehicleCategory[];
       }>({
         query: GET_VEHICLE_IMAGES,
       })
-      .pipe(
+      .valueChanges.pipe(
         map((result) => {
           const { vehicle_images_names, vehicle_types, vehicle_category } = result.data;
           return vehicle_images_names.map((vehicle) => {
