@@ -24,13 +24,14 @@
         >
           {{ isEditing ? 'Cancel' : 'Edit' }}
         </button>
-        <button
-          *ngIf="isEditing"
-          (click)="saveSettings()"
-          class="bg-yellow-400 text-gray-900 py-2 px-4 sm:px-6 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
-        >
-          Save Changes
-        </button>
+        @if (isEditing) {
+          <button
+            (click)="saveSettings()"
+            class="bg-yellow-400 text-gray-900 py-2 px-4 sm:px-6 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
+          >
+            Save Changes
+          </button>
+        }
       </div>
     </div>
 
