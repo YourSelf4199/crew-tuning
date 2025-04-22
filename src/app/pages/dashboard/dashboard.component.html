@@ -32,10 +32,16 @@
             (click)="onConfigSelected(config)"
           >
             <div class="relative">
+              @if (!imageLoadingStates[config.vehicle_images_name.id]) {
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <app-loading-spinner></app-loading-spinner>
+                </div>
+              }
               <img
                 [src]="config.vehicle_images_name.signedUrl || 'assets/images/placeholder.jpg'"
                 [alt]="config.vehicle_images_name.name"
                 class="w-full h-28 sm:h-48 object-cover rounded-lg mb-2 sm:mb-4"
+                (load)="onImageLoad(config.vehicle_images_name.id)"
                 (error)="handleImageError($event, config)"
               />
               <span

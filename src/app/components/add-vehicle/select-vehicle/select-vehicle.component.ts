@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VehicleService } from '../../../services/vehicle.service';
-import { Vehicle, VehicleCategory, VehicleType } from '../../../models/vehicle.model';
+import { Vehicle } from '../../../models/vehicle.model';
 import { getVehicleCategoryColor } from '../../../utils/vehicle.utils';
 import { handleS3ImageError } from '../../../utils/s3.utils';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner.component';
@@ -34,6 +34,7 @@ export class SelectVehicleComponent {
   showNotConfigured = false;
   isLoading = true;
   error: string | null = null;
+  imageLoadingStates: { [key: string]: boolean } = {};
   private failedImages = new Set<string>();
 
   constructor(
@@ -61,10 +62,14 @@ export class SelectVehicleComponent {
                   this.vehicleConfigurationService
                     .checkVehicleConfigured(parseInt(vehicle.vehicleImage.id), session.userSub!)
                     .pipe(
-                      map((isConfigured) => ({
-                        ...vehicle,
-                        isConfigured,
-                      })),
+                      map((isConfigured) => {
+                        // Initialize loading state for this vehicle
+                        this.imageLoadingStates[vehicle.vehicleImage.id] = false;
+                        return {
+                          ...vehicle,
+                          isConfigured,
+                        };
+                      }),
                     ),
                 ),
               ),
@@ -110,5 +115,10 @@ export class SelectVehicleComponent {
     this.selectedCategory = filters.category;
     this.selectedType = filters.type;
     this.showNotConfigured = filters.showNotConfigured;
+  }
+
+  onImageLoad(vehicleId: string) {
+    this.imageLoadingStates[vehicleId] = true;
+    this.cdr.markForCheck();
   }
 }

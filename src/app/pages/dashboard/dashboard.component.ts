@@ -28,6 +28,7 @@ export class DashboardComponent implements OnInit {
   selectedType: string = '';
   isLoading = true;
   error: string | null = null;
+  imageLoadingStates: { [key: string]: boolean } = {};
   private failedImages = new Set<string>();
   selectedConfig: VehicleConfiguration | null = null;
 
@@ -115,5 +116,9 @@ export class DashboardComponent implements OnInit {
   onFilterChange(filters: { category: number | null; type: string }) {
     this.selectedCategory = filters.category;
     this.selectedType = filters.type;
+  }
+
+  onImageLoad(vehicleId: string) {
+    this.imageLoadingStates[vehicleId] = true;
   }
 }
