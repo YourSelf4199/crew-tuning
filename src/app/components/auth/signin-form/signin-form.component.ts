@@ -7,13 +7,14 @@ import {
   EmailValidatorDirective,
   PasswordValidatorDirective,
 } from '../../../directives/validators';
+import { LoadingButtonComponent } from '../../loading-button/loading-button.component';
 
 @Component({
   selector: 'app-signin-form',
   templateUrl: './signin-form.component.html',
   styleUrls: ['./signin-form.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LoadingButtonComponent],
 })
 export class SigninFormComponent {
   @Output() switchToSignup = new EventEmitter<void>();
@@ -25,7 +26,6 @@ export class SigninFormComponent {
   constructor(
     private fb: FormBuilder,
     public authService: AuthService,
-    private router: Router,
     private emailValidator: EmailValidatorDirective,
     private passwordValidator: PasswordValidatorDirective,
   ) {

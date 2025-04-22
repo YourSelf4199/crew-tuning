@@ -6,17 +6,19 @@
       </h2>
     </div>
 
-    <app-signin-form
-      *ngIf="showSignIn"
-      (switchToSignup)="onSwitchToSignup()"
-      (switchToPasswordReset)="onSwitchToPasswordReset()"
-    ></app-signin-form>
+    @if (showSignIn) {
+      <app-signin-form
+        (switchToSignup)="onSwitchToSignup()"
+        (switchToPasswordReset)="onSwitchToPasswordReset()"
+      ></app-signin-form>
+    }
 
-    <app-signup-form *ngIf="showSignUp" (switchToLogin)="onSwitchToLogin()"></app-signup-form>
+    @if (showSignUp) {
+      <app-signup-form (switchToLogin)="onSwitchToLogin()"></app-signup-form>
+    }
 
-    <app-password-reset
-      *ngIf="showPasswordReset"
-      (switchToLogin)="onSwitchToLogin()"
-    ></app-password-reset>
+    @if (showPasswordReset) {
+      <app-password-reset (switchToLogin)="onSwitchToLogin()"></app-password-reset>
+    }
   </div>
 </div>
