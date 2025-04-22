@@ -1,10 +1,16 @@
 import { inject } from '@angular/core';
 import { Router, type CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { map } from 'rxjs';
 
 export const rootGuard: CanActivateFn = async (route) => {
   const router = inject(Router);
   const authService = inject(AuthService);
+
+  // Check if localStorage is empty
+  if (localStorage.length === 0) {
+    return true;
+  }
 
   try {
     const session = await authService.getCurrentSession();

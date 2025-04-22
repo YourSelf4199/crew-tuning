@@ -78,3 +78,16 @@ export const GET_SPECIFIC_SETTINGS = gql`
     }
   }
 `;
+
+export const CHECK_VEHICLE_CONFIGURED = gql`
+  query CheckVehicleConfigured($vehicle_images_names_id: Int!, $cognito_sub_id: String!) {
+    vehicle_configuration(
+      where: {
+        vehicle_images_names_id: { _eq: $vehicle_images_names_id }
+        cognito_sub_id: { _eq: $cognito_sub_id }
+      }
+    ) {
+      id
+    }
+  }
+`;

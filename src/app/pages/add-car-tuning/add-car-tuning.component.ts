@@ -10,6 +10,7 @@ import { GlobalSettingsComponent } from '../../components/add-vehicle/global-set
 import { SpecificSettingsComponent } from '../../components/add-vehicle/specific-settings/specific-settings.component';
 import { VehicleConfigurationService } from '../../services/vehicle-configuration.service';
 import { AuthService } from '../../services/auth.service';
+import { Observable, map, switchMap, from } from 'rxjs';
 
 @Component({
   selector: 'app-add-car-tuning',
@@ -34,7 +35,6 @@ export class AddCarTuningComponent {
   showSpecificSettings = false;
   isLoading = true;
   error: string | null = null;
-  private failedImages = new Set<string>();
 
   globalSettings: GlobalSettings = {
     abs: 0,
@@ -90,88 +90,88 @@ export class AddCarTuningComponent {
     this.showGlobalSettings = true;
   }
 
-  async onSaveSettings(): Promise<void> {
+  private getVehicleType(): Observable<VehicleType> {
+    return this.vehicleService.getVehicleTypes().pipe(
+      map((types) => {
+        const type = types.find((t) => t.code === this.selectedVehicle?.vehicle_type_code);
+        if (!type) {
+          throw new Error('No matching vehicle type found');
+        }
+        return type;
+      }),
+    );
+  }
+
+  private insertSettings(): Observable<{ globalSettingsId: string; specificSettingsId: string }> {
+    return this.vehicleConfigurationService.insertGlobalSettings(this.globalSettings).pipe(
+      switchMap((globalResult) => {
+        const globalSettingsId = globalResult.data?.insert_vehicle_global_settings_one?.id;
+        if (!globalSettingsId) {
+          throw new Error('Failed to get global settings ID');
+        }
+        return this.vehicleConfigurationService.insertSpecificSettings(this.specificSettings).pipe(
+          map((specificResult) => {
+            const specificSettingsId =
+              specificResult.data?.insert_vehicle_specific_settings_one?.id;
+            if (!specificSettingsId) {
+              throw new Error('Failed to get specific settings ID');
+            }
+            return { globalSettingsId, specificSettingsId };
+          }),
+        );
+      }),
+    );
+  }
+
+  private insertConfiguration(
+    cognitoSubId: string,
+    vehicleType: VehicleType,
+    settingsIds: { globalSettingsId: string; specificSettingsId: string },
+  ): Observable<any> {
+    return this.vehicleConfigurationService.insertVehicleConfiguration({
+      vehicle_images_names_id: this.selectedVehicle!.id,
+      vehicle_types_id: vehicleType.id,
+      cognito_sub_id: cognitoSubId,
+      global_settings_id: settingsIds.globalSettingsId,
+      specific_settings_id: settingsIds.specificSettingsId,
+    });
+  }
+
+  onSaveSettings(): void {
     if (!this.selectedVehicle) {
       console.error('No vehicle selected');
       return;
     }
 
-    try {
-      const session = await this.authService.getCurrentSession();
-      const cognitoSubId = session.userSub;
-      if (!cognitoSubId) {
-        console.error('No cognito sub ID found');
-        return;
-      }
+    this.specificSettingsComponent.isLoading = true;
 
-      // First, get the vehicle type ID
-      const vehicleTypes = await this.vehicleService.getVehicleTypes().toPromise();
-      const vehicleType = vehicleTypes?.find(
-        (type: VehicleType) => type.code === this.selectedVehicle?.vehicle_type_code,
-      );
-
-      if (!vehicleType) {
-        console.error('No matching vehicle type found');
-        return;
-      }
-
-      // Then, insert global settings
-      this.vehicleConfigurationService.insertGlobalSettings(this.globalSettings).subscribe({
-        next: (globalResult) => {
-          const globalSettingsId = globalResult.data?.insert_vehicle_global_settings_one?.id;
-          if (!globalSettingsId) {
-            console.error('Failed to get global settings ID');
-            return;
+    from(this.authService.getCurrentSession())
+      .pipe(
+        switchMap((session) => {
+          if (!session.userSub) {
+            throw new Error('No cognito sub ID found');
           }
-
-          // Then, insert specific settings
-          this.vehicleConfigurationService.insertSpecificSettings(this.specificSettings).subscribe({
-            next: (specificResult) => {
-              const specificSettingsId =
-                specificResult.data?.insert_vehicle_specific_settings_one?.id;
-              if (!specificSettingsId) {
-                console.error('Failed to get specific settings ID');
-                return;
-              }
-
-              // Finally, insert vehicle configuration
-              this.vehicleConfigurationService
-                .insertVehicleConfiguration({
-                  vehicle_images_names_id: this.selectedVehicle!.id,
-                  vehicle_types_id: vehicleType.id,
-                  cognito_sub_id: cognitoSubId,
-                  global_settings_id: globalSettingsId,
-                  specific_settings_id: specificSettingsId,
-                })
-                .subscribe({
-                  next: (configResult) => {
-                    console.log('Configuration saved successfully:', configResult);
-                    this.router.navigate(['/app/dashboard']);
-                  },
-                  error: (err) => {
-                    console.error('Error saving vehicle configuration:', err);
-                    this.specificSettingsComponent.isLoading = false;
-                  },
-                  complete: () => {
-                    this.specificSettingsComponent.isLoading = false;
-                  },
-                });
-            },
-            error: (err) => {
-              console.error('Error saving specific settings:', err);
-              this.specificSettingsComponent.isLoading = false;
-            },
-          });
+          return this.getVehicleType().pipe(map((type) => ({ session, type })));
+        }),
+        switchMap(({ session, type }) =>
+          this.insertSettings().pipe(map((settingsIds) => ({ session, type, settingsIds }))),
+        ),
+        switchMap(({ session, type, settingsIds }) =>
+          this.insertConfiguration(session.userSub!, type, settingsIds),
+        ),
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/app/dashboard']);
         },
-        error: (err) => {
-          console.error('Error saving global settings:', err);
+        error: (error) => {
+          console.error('Error saving configuration:', error);
+          this.specificSettingsComponent.isLoading = false;
+        },
+        complete: () => {
           this.specificSettingsComponent.isLoading = false;
         },
       });
-    } catch (error) {
-      console.error('Error getting user session:', error);
-      this.specificSettingsComponent.isLoading = false;
-    }
   }
 
   onBack(): void {

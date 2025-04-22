@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { getUrl } from '@aws-amplify/storage';
+import { Observable, from, map, catchError, forkJoin } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -14,26 +15,29 @@ export class S3Service {
     return `${this.S3_BASE_URL}/${relativePath}`;
   }
 
-  async getSignedUrl(path: string): Promise<string> {
-    try {
-      const fixedPath = this.fixImagePath(path);
-      const result = await getUrl({ path: fixedPath });
-      return result.url.toString();
-    } catch (error) {
-      console.error('Error getting signed URL:', error);
-      throw error;
-    }
+  getSignedUrl(path: string): Observable<string> {
+    return from(getUrl({ path: this.fixImagePath(path) })).pipe(
+      map((result) => result.url.toString()),
+      catchError((error) => {
+        console.error('Error getting signed URL:', error);
+        throw error;
+      }),
+    );
   }
 
-  async getSignedUrls(paths: string[]): Promise<string[]> {
-    try {
-      const fixedPaths = paths.map((path) => this.fixImagePath(path));
-      const results = await Promise.all(fixedPaths.map((path) => getUrl({ path })));
-      return results.map((result) => result.url.toString());
-    } catch (error) {
-      console.error('Error getting signed URLs:', error);
-      throw error;
-    }
+  getSignedUrls(paths: string[]): Observable<string[]> {
+    return forkJoin(
+      paths.map((path) =>
+        from(getUrl({ path: this.fixImagePath(path) })).pipe(
+          map((result) => result.url.toString()),
+        ),
+      ),
+    ).pipe(
+      catchError((error) => {
+        console.error('Error getting signed URLs:', error);
+        throw error;
+      }),
+    );
   }
 
   private fixImagePath(path: string): string {

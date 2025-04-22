@@ -1,0 +1,36 @@
+<div class="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-4 items-center">
+  <label class="text-gray-300">Show:</label>
+
+  @if (configuredFilter) {
+    <select
+      [(ngModel)]="showNotConfigured"
+      (change)="onConfiguredChange($any($event.target).value === 'true')"
+      class="bg-gray-700 text-white rounded-lg px-3 py-2 w-full sm:w-auto"
+    >
+      <option [value]="false">All Vehicles</option>
+      <option [value]="true">Not yet tuned</option>
+    </select>
+  }
+
+  <select
+    [(ngModel)]="selectedCategory"
+    (ngModelChange)="onCategoryChange($event)"
+    class="bg-gray-700 text-white rounded-lg px-3 py-2 w-full sm:w-auto"
+  >
+    <option [ngValue]="null">All Categories</option>
+    @for (category of categories; track category.id) {
+      <option [ngValue]="category.id">{{ category.label }}</option>
+    }
+  </select>
+
+  <select
+    [(ngModel)]="selectedType"
+    (ngModelChange)="onTypeChange($event)"
+    class="bg-gray-700 text-white rounded-lg px-3 py-2 w-full sm:w-auto"
+  >
+    <option value="">All Types</option>
+    @for (type of vehicleTypes; track type.id) {
+      <option [value]="type.id">{{ type.label }}</option>
+    }
+  </select>
+</div>
