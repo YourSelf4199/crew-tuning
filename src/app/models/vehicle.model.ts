@@ -2,6 +2,7 @@ export interface Vehicle {
   vehicleImage: VehicleImage;
   vehicleType: VehicleType;
   vehicleCategory: VehicleCategory;
+  isConfigured?: boolean;
 }
 
 export interface VehicleImage {

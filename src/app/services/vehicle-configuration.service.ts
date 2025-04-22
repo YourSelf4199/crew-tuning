@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Apollo } from 'apollo-angular';
-import { gql } from 'apollo-angular';
+import { Apollo, gql } from 'apollo-angular';
 import { GlobalSettings } from '../models/settings.model';
 import { SpecificSettings } from '../models/settings.model';
 import {
@@ -22,6 +21,7 @@ import {
   GET_GLOBAL_SETTINGS,
   GET_SPECIFIC_SETTINGS,
   GET_VEHICLE_CONFIGURATION,
+  CHECK_VEHICLE_CONFIGURED,
 } from '../graphql/queries/vehicle_configuration.queries';
 import {
   INSERT_GLOBAL_SETTINGS,
@@ -42,6 +42,39 @@ export class VehicleConfigurationService {
     private s3Service: S3Service,
   ) {}
 
+  private mapConfigurations(
+    configs: Array<Omit<VehicleConfiguration, 'vehicle_type' | 'vehicle_category'>>,
+    types: VehicleType[],
+    categories: VehicleCategory[],
+  ): VehicleConfiguration[] {
+    return configs.map((config) => {
+      const type = types.find((t) => t.code === config.vehicle_images_name.vehicle_type_code);
+      const category = type ? categories.find((c) => c.id === parseInt(type.category_id)) : null;
+
+      return {
+        ...config,
+        vehicleType: type || ({} as VehicleType),
+        vehicleCategory: category || ({} as VehicleCategory),
+      };
+    });
+  }
+
+  private addSignedUrls(configs: VehicleConfiguration[]): Observable<VehicleConfiguration[]> {
+    return forkJoin(
+      configs.map((config) =>
+        this.s3Service.getSignedUrl(config.vehicle_images_name.s3_image_url).pipe(
+          map((signedUrl) => ({
+            ...config,
+            vehicle_images_name: {
+              ...config.vehicle_images_name,
+              signedUrl,
+            },
+          })),
+        ),
+      ),
+    );
+  }
+
   getVehicleConfigurations(cognito_sub_id: string): Observable<VehicleConfiguration[]> {
     return this.apollo
       .watchQuery<{
@@ -56,79 +89,28 @@ export class VehicleConfigurationService {
         fetchPolicy: 'network-only',
       })
       .valueChanges.pipe(
-        map((result) => {
-          const { vehicle_configuration, vehicle_types, vehicle_category } = result.data;
-          return vehicle_configuration.map((config) => {
-            const type = vehicle_types.find(
-              (t) => t.code === config.vehicle_images_name.vehicle_type_code,
-            );
-            const category = type
-              ? vehicle_category.find((c) => c.id === parseInt(type.category_id))
-              : null;
-
-            return {
-              ...config,
-              vehicleType: type || ({} as VehicleType),
-              vehicleCategory: category || ({} as VehicleCategory),
-            };
-          });
-        }),
-        switchMap((configurations) =>
-          from(
-            Promise.all(
-              configurations.map(async (config) => {
-                const signedUrl = await this.s3Service.getSignedUrl(
-                  config.vehicle_images_name.s3_image_url,
-                );
-                return {
-                  ...config,
-                  vehicle_images_name: {
-                    ...config.vehicle_images_name,
-                    signedUrl,
-                  },
-                };
-              }),
-            ),
+        map((result) =>
+          this.mapConfigurations(
+            result.data.vehicle_configuration,
+            result.data.vehicle_types,
+            result.data.vehicle_category,
           ),
         ),
+        switchMap((configs) => this.addSignedUrls(configs)),
       );
   }
 
   insertGlobalSettings(settings: GlobalSettings) {
     return this.apollo.mutate<GlobalSettingsResponse>({
       mutation: INSERT_GLOBAL_SETTINGS,
-      variables: {
-        settings: {
-          abs: settings.abs,
-          drift_assist: settings.drift_assist,
-          esp: settings.esp,
-          traction_control: settings.traction_control,
-        },
-      },
+      variables: { settings },
     });
   }
 
   insertSpecificSettings(settings: SpecificSettings) {
     return this.apollo.mutate<SpecificSettingsResponse>({
       mutation: INSERT_SPECIFIC_SETTINGS,
-      variables: {
-        settings: {
-          aero_distribution: settings.aero_distribution,
-          arb_front: settings.arb_front,
-          arb_rear: settings.arb_rear,
-          brake_balance: settings.brake_balance,
-          brake_power: settings.brake_power,
-          gearbox: settings.gearbox,
-          susp_comp_front: settings.susp_comp_front,
-          susp_comp_rear: settings.susp_comp_rear,
-          susp_geom_camber_front: settings.susp_geom_camber_front,
-          susp_geom_camber_rear: settings.susp_geom_camber_rear,
-          susp_reb_front: settings.susp_reb_front,
-          susp_reb_rear: settings.susp_reb_rear,
-          tire_grip_front: settings.tire_grip_front,
-          tire_grip_rear: settings.tire_grip_rear,
-        },
-      },
+      variables: { settings },
     });
   }
 
@@ -217,19 +199,27 @@ export class VehicleConfigurationService {
     });
   }
 
+  private getGlobalSettings(id: string) {
+    return this.apollo
+      .query<{ vehicle_global_settings: GlobalSettings[] }>({
+        query: GET_GLOBAL_SETTINGS,
+        variables: { id },
+      })
+      .pipe(map((result) => result.data.vehicle_global_settings[0]));
+  }
+
+  private getSpecificSettings(id: string) {
+    return this.apollo
+      .query<{ vehicle_specific_settings: SpecificSettings[] }>({
+        query: GET_SPECIFIC_SETTINGS,
+        variables: { id },
+      })
+      .pipe(map((result) => result.data.vehicle_specific_settings[0]));
+  }
+
   getVehicleConfiguration(vehicle_images_names_id: number) {
     return this.apollo
-      .query<{
-        vehicle_configuration: Array<{
-          id: string;
-          vehicle_images_names_id: string;
-          vehicle_types_id: string;
-          cognito_sub_id: string;
-          global_settings_id: string;
-          specific_settings_id: string;
-          specific_settings_boat_id: string | null;
-        }>;
-      }>({
+      .query<{ vehicle_configuration: VehicleConfiguration[] }>({
         query: GET_VEHICLE_CONFIGURATION,
         variables: { vehicle_images_names_id },
         fetchPolicy: 'network-only',
@@ -242,51 +232,9 @@ export class VehicleConfigurationService {
             throw new Error('Configuration not found');
           }
 
-          // Get global settings using the global_settings_id
-          const globalSettings$ = this.apollo
-            .query<{
-              vehicle_global_settings: Array<{
-                id: string;
-                abs: number;
-                drift_assist: number;
-                esp: number;
-                traction_control: number;
-              }>;
-            }>({
-              query: GET_GLOBAL_SETTINGS,
-              variables: { id: config.global_settings_id },
-            })
-            .pipe(map((result) => result.data.vehicle_global_settings[0]));
-
-          // Get specific settings using the specific_settings_id
-          const specificSettings$ = this.apollo
-            .query<{
-              vehicle_specific_settings: Array<{
-                id: string;
-                aero_distribution: number;
-                arb_front: number;
-                arb_rear: number;
-                brake_balance: number;
-                brake_power: number;
-                gearbox: number;
-                susp_comp_front: number;
-                susp_comp_rear: number;
-                susp_geom_camber_front: number;
-                susp_geom_camber_rear: number;
-                susp_reb_front: number;
-                susp_reb_rear: number;
-                tire_grip_front: number;
-                tire_grip_rear: number;
-              }>;
-            }>({
-              query: GET_SPECIFIC_SETTINGS,
-              variables: { id: config.specific_settings_id },
-            })
-            .pipe(map((result) => result.data.vehicle_specific_settings[0]));
-
           return forkJoin({
-            globalSettings: globalSettings$,
-            specificSettings: specificSettings$,
+            globalSettings: this.getGlobalSettings(config.global_settings_id),
+            specificSettings: this.getSpecificSettings(config.specific_settings_id),
           }).pipe(
             map(({ globalSettings, specificSettings }) => ({
               ...config,
@@ -322,18 +270,10 @@ export class VehicleConfigurationService {
           }
 
           // Delete global settings
-          const deleteGlobalSettings$ = this.apollo.mutate({
-            mutation: DELETE_GLOBAL_SETTINGS,
-            variables: { id: config.global_settings_id },
-            refetchQueries: ['GetVehicleConfigurations'],
-          });
+          const deleteGlobalSettings$ = this.deleteGlobalSettings(config.global_settings_id);
 
           // Delete specific settings
-          const deleteSpecificSettings$ = this.apollo.mutate({
-            mutation: DELETE_SPECIFIC_SETTINGS,
-            variables: { id: config.specific_settings_id },
-            refetchQueries: ['GetVehicleConfigurations'],
-          });
+          const deleteSpecificSettings$ = this.deleteSpecificSettings(config.specific_settings_id);
 
           // First delete both settings, then delete the configuration
           return forkJoin([deleteGlobalSettings$, deleteSpecificSettings$]).pipe(
@@ -350,5 +290,38 @@ export class VehicleConfigurationService {
           );
         }),
       );
+  }
+
+  deleteGlobalSettings(id: string) {
+    return this.apollo.mutate({
+      mutation: DELETE_GLOBAL_SETTINGS,
+      variables: { id },
+      refetchQueries: ['GetVehicleConfigurations'],
+    });
+  }
+
+  deleteSpecificSettings(id: string) {
+    return this.apollo.mutate({
+      mutation: DELETE_SPECIFIC_SETTINGS,
+      variables: { id },
+      refetchQueries: ['GetVehicleConfigurations'],
+    });
+  }
+
+  checkVehicleConfigured(
+    vehicle_images_names_id: number,
+    cognito_sub_id: string,
+  ): Observable<boolean> {
+    return this.apollo
+      .query<{
+        vehicle_configuration: Array<{
+          id: string;
+        }>;
+      }>({
+        query: CHECK_VEHICLE_CONFIGURED,
+        variables: { vehicle_images_names_id, cognito_sub_id },
+        fetchPolicy: 'network-only',
+      })
+      .pipe(map((result) => result.data.vehicle_configuration.length > 0));
   }
 }

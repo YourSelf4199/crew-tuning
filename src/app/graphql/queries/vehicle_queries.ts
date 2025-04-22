@@ -31,3 +31,14 @@ export const GET_VEHICLE_CATEGORIES = gql`
     }
   }
 `;
+
+export const GET_VEHICLE_TYPES = gql`
+  query GetVehicleTypes {
+    vehicle_types {
+      id
+      code
+      label
+      category_id
+    }
+  }
+`;

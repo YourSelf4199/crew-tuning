@@ -8,16 +8,24 @@ import { Router } from '@angular/router';
 import { getVehicleCategoryColor } from '../../utils/vehicle.utils';
 import { handleS3ImageError } from '../../utils/s3.utils';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { VehicleFiltersComponent } from '../../components/vehicle-filters/vehicle-filters.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, CarActionsPopupComponent, LoadingSpinnerComponent],
+  imports: [
+    CommonModule,
+    CarActionsPopupComponent,
+    LoadingSpinnerComponent,
+    VehicleFiltersComponent,
+  ],
 })
 export class DashboardComponent implements OnInit {
   configurations: VehicleConfiguration[] = [];
+  selectedCategory: number | null = null;
+  selectedType: string = '';
   isLoading = true;
   error: string | null = null;
   private failedImages = new Set<string>();
@@ -102,5 +110,10 @@ export class DashboardComponent implements OnInit {
 
   getColorForCategory(label: string): string {
     return getVehicleCategoryColor(label);
+  }
+
+  onFilterChange(filters: { category: number | null; type: string }) {
+    this.selectedCategory = filters.category;
+    this.selectedType = filters.type;
   }
 }

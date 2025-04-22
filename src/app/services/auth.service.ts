@@ -17,27 +17,14 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class AuthService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   isSigningOut = false;
 
   loading$ = this.loadingSubject.asObservable();
-  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private router: Router) {
-    this.checkAuthState();
-  }
+  constructor(private router: Router) {}
 
   private setLoading(loading: boolean) {
     this.loadingSubject.next(loading);
-  }
-
-  private async checkAuthState() {
-    try {
-      const session = await fetchAuthSession();
-      this.isAuthenticatedSubject.next(!!session.tokens);
-    } catch (error) {
-      this.isAuthenticatedSubject.next(false);
-    }
   }
 
   /**
@@ -100,7 +87,6 @@ export class AuthService {
     this.isSigningOut = true;
     try {
       await signOut();
-      this.isAuthenticatedSubject.next(false);
       await this.router.navigate(['/']);
     } catch (error) {
       console.error('Sign out failed:', error);
@@ -111,9 +97,9 @@ export class AuthService {
     }
   }
 
-  /**
-   * Get current auth session
-   */
+  // /**
+  //  * Get current auth session
+  //  */
   async getCurrentSession() {
     try {
       return await fetchAuthSession();

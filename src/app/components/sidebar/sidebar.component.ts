@@ -36,7 +36,9 @@ export class SidebarComponent implements OnInit {
   }
 
   toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
+    if (this.isMobile) {
+      this.isSidebarOpen = !this.isSidebarOpen;
+    }
   }
 
   async onSignOut() {

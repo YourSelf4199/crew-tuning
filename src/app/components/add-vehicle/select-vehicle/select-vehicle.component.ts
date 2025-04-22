@@ -7,15 +7,20 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VehicleService } from '../../../services/vehicle.service';
-import { Vehicle } from '../../../models/vehicle.model';
+import { Vehicle, VehicleCategory, VehicleType } from '../../../models/vehicle.model';
 import { getVehicleCategoryColor } from '../../../utils/vehicle.utils';
 import { handleS3ImageError } from '../../../utils/s3.utils';
 import { LoadingSpinnerComponent } from '../../loading-spinner/loading-spinner.component';
+import { FormsModule } from '@angular/forms';
+import { VehicleFiltersComponent } from '../../vehicle-filters/vehicle-filters.component';
+import { AuthService } from '../../../services/auth.service';
+import { VehicleConfigurationService } from '../../../services/vehicle-configuration.service';
+import { from, switchMap, forkJoin, map } from 'rxjs';
 
 @Component({
   selector: 'app-select-vehicle',
   standalone: true,
-  imports: [CommonModule, LoadingSpinnerComponent],
+  imports: [CommonModule, LoadingSpinnerComponent, FormsModule, VehicleFiltersComponent],
   templateUrl: './select-vehicle.component.html',
   styleUrls: ['./select-vehicle.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,6 +29,9 @@ export class SelectVehicleComponent {
   @Output() vehicleSelected = new EventEmitter<Vehicle>();
 
   vehicleImages: Vehicle[] = [];
+  selectedCategory: number | null = null;
+  selectedType: string = '';
+  showNotConfigured = false;
   isLoading = true;
   error: string | null = null;
   private failedImages = new Set<string>();
@@ -31,6 +39,8 @@ export class SelectVehicleComponent {
   constructor(
     private vehicleService: VehicleService,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private vehicleConfigurationService: VehicleConfigurationService,
   ) {}
 
   ngOnInit(): void {
@@ -38,23 +48,49 @@ export class SelectVehicleComponent {
   }
 
   private loadVehicleImages(): void {
-    this.vehicleService.getVehicleImages().subscribe({
-      next: (images) => {
-        this.vehicleImages = images;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.error = 'Failed to load vehicle images';
-        this.isLoading = false;
-        this.cdr.markForCheck();
-        console.error('Error loading vehicle images:', err);
-      },
-    });
+    from(this.authService.getCurrentSession())
+      .pipe(
+        switchMap((session) => {
+          if (!session.userSub) {
+            throw new Error('No user session');
+          }
+          return this.vehicleService.getVehicleImages().pipe(
+            switchMap((images) =>
+              forkJoin(
+                images.map((vehicle) =>
+                  this.vehicleConfigurationService
+                    .checkVehicleConfigured(parseInt(vehicle.vehicleImage.id), session.userSub!)
+                    .pipe(
+                      map((isConfigured) => ({
+                        ...vehicle,
+                        isConfigured,
+                      })),
+                    ),
+                ),
+              ),
+            ),
+          );
+        }),
+      )
+      .subscribe({
+        next: (vehicles) => {
+          this.vehicleImages = vehicles;
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.error = 'Failed to load vehicle images';
+          this.isLoading = false;
+          this.cdr.markForCheck();
+          console.error('Error loading vehicle images:', err);
+        },
+      });
   }
 
   onVehicleSelected(vehicle: Vehicle): void {
-    this.vehicleSelected.emit(vehicle);
+    if (!vehicle.isConfigured) {
+      this.vehicleSelected.emit(vehicle);
+    }
   }
 
   handleImageError(event: Event, vehicle: Vehicle): void {
@@ -68,5 +104,11 @@ export class SelectVehicleComponent {
 
   getColorForCategory(label: string): string {
     return getVehicleCategoryColor(label);
+  }
+
+  onFilterChange(filters: { category: number | null; type: string; showNotConfigured: boolean }) {
+    this.selectedCategory = filters.category;
+    this.selectedType = filters.type;
+    this.showNotConfigured = filters.showNotConfigured;
   }
 }
