@@ -20,6 +20,7 @@ export const rootGuard: CanActivateFn = async (route) => {
     }
     return true;
   } catch (error) {
+    authService.setError('Authentication failed');
     // If there's an error getting the session, allow access to root
     return true;
   }

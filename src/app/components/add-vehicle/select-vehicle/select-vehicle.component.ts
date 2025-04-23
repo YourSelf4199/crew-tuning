@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { VehicleFiltersComponent } from '../../vehicle-filters/vehicle-filters.component';
 import { AuthService } from '../../../services/auth.service';
 import { VehicleConfigurationService } from '../../../services/vehicle-configuration.service';
-import { from, switchMap, forkJoin, map } from 'rxjs';
+import { from, switchMap, forkJoin, map, EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-select-vehicle',
@@ -45,6 +45,12 @@ export class SelectVehicleComponent {
   ) {}
 
   ngOnInit(): void {
+    this.authService.error$.subscribe((error) => {
+      if (error) {
+        this.error = error;
+        this.isLoading = false;
+      }
+    });
     this.loadVehicleImages();
   }
 
@@ -52,15 +58,12 @@ export class SelectVehicleComponent {
     from(this.authService.getCurrentSession())
       .pipe(
         switchMap((session) => {
-          if (!session.userSub) {
-            throw new Error('No user session');
-          }
           return this.vehicleService.getVehicleImages().pipe(
             switchMap((images) =>
               forkJoin(
                 images.map((vehicle) =>
                   this.vehicleConfigurationService
-                    .checkVehicleConfigured(parseInt(vehicle.vehicleImage.id), session.userSub!)
+                    .checkVehicleConfigured(parseInt(vehicle.vehicleImage.id), session!.userSub!)
                     .pipe(
                       map((isConfigured) => {
                         // Initialize loading state for this vehicle

@@ -9,6 +9,7 @@ import { getVehicleCategoryColor } from '../../utils/vehicle.utils';
 import { handleS3ImageError } from '../../utils/s3.utils';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { VehicleFiltersComponent } from '../../components/vehicle-filters/vehicle-filters.component';
+import { from, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -38,18 +39,20 @@ export class DashboardComponent implements OnInit {
     private router: Router,
   ) {}
 
-  async ngOnInit(): Promise<void> {
-    try {
-      const session = await this.authService.getCurrentSession();
-      const cognitoSubId = session.userSub;
-
-      if (!cognitoSubId) {
-        this.error = 'No user session found';
+  ngOnInit(): void {
+    this.authService.error$.subscribe((error) => {
+      if (error) {
+        this.error = error;
         this.isLoading = false;
-        return;
       }
-
-      this.vehicleConfigurationService.getVehicleConfigurations(cognitoSubId).subscribe({
+    });
+    from(this.authService.getCurrentSession())
+      .pipe(
+        switchMap((session) =>
+          this.vehicleConfigurationService.getVehicleConfigurations(session!.userSub!),
+        ),
+      )
+      .subscribe({
         next: (configs) => {
           this.configurations = configs;
           this.isLoading = false;
@@ -57,14 +60,8 @@ export class DashboardComponent implements OnInit {
         error: (err) => {
           this.error = 'Failed to load vehicle configurations';
           this.isLoading = false;
-          console.error('Error loading vehicle configurations:', err);
         },
       });
-    } catch (error) {
-      this.error = 'Failed to get user session';
-      this.isLoading = false;
-      console.error('Error getting user session:', error);
-    }
   }
 
   handleImageError(event: Event, config: VehicleConfiguration): void {
@@ -81,12 +78,16 @@ export class DashboardComponent implements OnInit {
   }
 
   onViewSettingsConfig(config: VehicleConfiguration) {
-    this.router.navigate(['/app/view-car-tuning', config.vehicle_images_names_id]);
+    this.router.navigate([
+      '/app/view-car-tuning',
+      config.vehicle_images_names_id,
+      config.vehicle_images_name.name,
+    ]);
   }
 
   onDeleteConfig(config: VehicleConfiguration) {
     if (!config.vehicle_images_names_id) {
-      console.error('No vehicle_images_names_id found in config');
+      this.error = 'No vehicle found, sorry for the inconvenience';
       return;
     }
 
@@ -95,11 +96,10 @@ export class DashboardComponent implements OnInit {
     this.isLoading = true;
     this.vehicleConfigurationService.deleteVehicleConfiguration(id).subscribe({
       next: () => {
-        console.log('Configuration deleted successfully');
         this.onClosePopup();
       },
       error: (error) => {
-        console.error('Error deleting configuration:', error);
+        this.error = 'Error deleting configuration';
         this.isLoading = false;
       },
     });

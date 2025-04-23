@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { SignupFormComponent } from '../../components/auth/signup-form/signup-form.component';
 import { SigninFormComponent } from '../../components/auth/signin-form/signin-form.component';
 import { PasswordResetComponent } from '../../components/auth/password-reset/password-reset.component';
@@ -17,7 +16,7 @@ export class SigninandsignupComponent {
   showSignUp = false;
   showPasswordReset = false;
 
-  constructor(private router: Router) {}
+  constructor() {}
 
   onSwitchToLogin() {
     this.showSignIn = true;

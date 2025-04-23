@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VehicleConfigurationService } from '../../services/vehicle-configuration.service';
@@ -20,13 +26,14 @@ export class ViewCarTuningComponent implements OnInit {
   globalSettings: GlobalSettings | undefined;
   specificSettings: SpecificSettings | undefined;
   vehicleImagesNamesId: number | null = null;
+  vehicleImagesName: string | null = null;
   vehicleImage: VehicleImage | null = null;
   isLoadingSettings: boolean = true;
   isSavingSettings: boolean = false;
   isEditing: boolean = false;
-  //private configurationId: string | null = null;
   private globalSettingsId: string | null = null;
   private specificSettingsId: string | null = null;
+  error: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,8 +43,10 @@ export class ViewCarTuningComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
+    const name = this.route.snapshot.paramMap.get('name');
+    if (id && name) {
       this.vehicleImagesNamesId = parseInt(id, 10);
+      this.vehicleImagesName = name;
       this.loadConfiguration();
     }
   }
@@ -48,7 +57,6 @@ export class ViewCarTuningComponent implements OnInit {
     this.isLoadingSettings = true;
     this.vehicleConfigurationService.getVehicleConfiguration(this.vehicleImagesNamesId).subscribe({
       next: (config) => {
-        //this.configurationId = config.id;
         this.globalSettingsId = config.global_settings_id;
         this.specificSettingsId = config.specific_settings_id;
         this.globalSettings = config.vehicle_global_settings;
@@ -56,7 +64,7 @@ export class ViewCarTuningComponent implements OnInit {
         this.isLoadingSettings = false;
       },
       error: (error) => {
-        console.error('Error loading configuration:', error);
+        this.error = 'Error loading configuration';
         this.isLoadingSettings = false;
       },
     });
@@ -72,8 +80,6 @@ export class ViewCarTuningComponent implements OnInit {
 
   toggleEditMode() {
     this.isEditing = !this.isEditing;
-    this.globalSettingsComponent.toggleEditMode();
-    this.specificSettingsComponent.toggleEditMode();
   }
 
   saveSettings() {
@@ -98,20 +104,17 @@ export class ViewCarTuningComponent implements OnInit {
             .updateSpecificSettings(this.specificSettingsId!, this.specificSettings!)
             .subscribe({
               next: () => {
-                console.log('All settings updated successfully');
-                //this.toggleEditMode();
                 this.isSavingSettings = false;
-                // Exit edit mode after saving
                 this.router.navigate(['/app/dashboard']);
               },
               error: (error) => {
-                console.error('Error updating specific settings:', error);
+                this.error = 'Error updating specific settings, sorry for the inconvenience';
                 this.isSavingSettings = false;
               },
             });
         },
         error: (error) => {
-          console.error('Error updating global settings:', error);
+          this.error = 'Error updating global settings, sorry for the inconvenience';
           this.isSavingSettings = false;
         },
       });

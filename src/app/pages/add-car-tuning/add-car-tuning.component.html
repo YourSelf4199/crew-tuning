@@ -1,7 +1,16 @@
 <div class="p-6 text-white">
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-yellow-400">Add Car Tuning</h1>
+    @if (selectedVehicle) {
+      <h2 class="text-xl font-bold text-yellow-400">{{ selectedVehicle.name }}</h2>
+    }
   </div>
+
+  @if (error) {
+    <div class="bg-red-500 text-white p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
+      {{ error }}
+    </div>
+  }
 
   @if (!selectedVehicle) {
     <app-select-vehicle (vehicleSelected)="onVehicleSelected($event)"></app-select-vehicle>

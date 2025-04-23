@@ -17,6 +17,9 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class AuthService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
+  private errorSubject = new BehaviorSubject<string | null>(null);
+  error$ = this.errorSubject.asObservable();
+
   isSigningOut = false;
 
   loading$ = this.loadingSubject.asObservable();
@@ -25,6 +28,10 @@ export class AuthService {
 
   private setLoading(loading: boolean) {
     this.loadingSubject.next(loading);
+  }
+
+  setError(error: string) {
+    this.errorSubject.next(error);
   }
 
   /**
@@ -104,8 +111,8 @@ export class AuthService {
     try {
       return await fetchAuthSession();
     } catch (error) {
-      console.error('Failed to fetch session:', error);
-      throw error;
+      this.setError('No user session found, please login again');
+      return null;
     }
   }
 
@@ -117,7 +124,6 @@ export class AuthService {
     try {
       return await resetPassword({ username: email });
     } catch (error) {
-      console.error('Password reset failed:', error);
       throw error;
     } finally {
       this.setLoading(false);
