@@ -10,7 +10,7 @@ import { GlobalSettingsComponent } from '../../components/add-vehicle/global-set
 import { SpecificSettingsComponent } from '../../components/add-vehicle/specific-settings/specific-settings.component';
 import { VehicleConfigurationService } from '../../services/vehicle-configuration.service';
 import { AuthService } from '../../services/auth.service';
-import { Observable, map, switchMap, from } from 'rxjs';
+import { Observable, map, switchMap, from, of, EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-add-car-tuning',
@@ -65,23 +65,12 @@ export class AddCarTuningComponent {
     private vehicleConfigurationService: VehicleConfigurationService,
     private authService: AuthService,
     private router: Router,
-  ) {}
-
-  ngOnInit(): void {
-    this.loadVehicleImages();
-  }
-
-  private loadVehicleImages(): void {
-    this.vehicleService.getVehicleImages().subscribe({
-      next: (images) => {
-        this.vehicleImages = images;
+  ) {
+    this.authService.error$.subscribe((error) => {
+      if (error) {
+        this.error = error;
         this.isLoading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load vehicle images';
-        this.isLoading = false;
-        console.error('Error loading vehicle images:', err);
-      },
+      }
     });
   }
 
@@ -95,7 +84,8 @@ export class AddCarTuningComponent {
       map((types) => {
         const type = types.find((t) => t.code === this.selectedVehicle?.vehicle_type_code);
         if (!type) {
-          throw new Error('No matching vehicle type found');
+          this.error = 'No matching vehicle type found';
+          return {} as VehicleType;
         }
         return type;
       }),
@@ -107,14 +97,16 @@ export class AddCarTuningComponent {
       switchMap((globalResult) => {
         const globalSettingsId = globalResult.data?.insert_vehicle_global_settings_one?.id;
         if (!globalSettingsId) {
-          throw new Error('Failed to get global settings ID');
+          this.error = 'Failed to create global settings';
+          return EMPTY;
         }
         return this.vehicleConfigurationService.insertSpecificSettings(this.specificSettings).pipe(
           map((specificResult) => {
             const specificSettingsId =
               specificResult.data?.insert_vehicle_specific_settings_one?.id;
             if (!specificSettingsId) {
-              throw new Error('Failed to get specific settings ID');
+              this.error = 'Failed to create specific settings';
+              return {} as { globalSettingsId: string; specificSettingsId: string };
             }
             return { globalSettingsId, specificSettingsId };
           }),
@@ -138,34 +130,26 @@ export class AddCarTuningComponent {
   }
 
   onSaveSettings(): void {
-    if (!this.selectedVehicle) {
-      console.error('No vehicle selected');
-      return;
-    }
-
     this.specificSettingsComponent.isLoading = true;
 
     from(this.authService.getCurrentSession())
       .pipe(
-        switchMap((session) => {
-          if (!session.userSub) {
-            throw new Error('No cognito sub ID found');
-          }
-          return this.getVehicleType().pipe(map((type) => ({ session, type })));
+        switchMap((result) => {
+          return this.getVehicleType().pipe(map((type) => ({ session: result, type })));
         }),
         switchMap(({ session, type }) =>
           this.insertSettings().pipe(map((settingsIds) => ({ session, type, settingsIds }))),
         ),
         switchMap(({ session, type, settingsIds }) =>
-          this.insertConfiguration(session.userSub!, type, settingsIds),
+          this.insertConfiguration(session!.userSub!, type, settingsIds),
         ),
       )
       .subscribe({
         next: () => {
           this.router.navigate(['/app/dashboard']);
         },
-        error: (error) => {
-          console.error('Error saving configuration:', error);
+        error: () => {
+          this.error = 'Could not save configuration, sorry for the inconvenience';
           this.specificSettingsComponent.isLoading = false;
         },
         complete: () => {

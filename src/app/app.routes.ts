@@ -30,7 +30,7 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'view-car-tuning/:id',
+        path: 'view-car-tuning/:id/:name',
         loadComponent: () =>
           import('./pages/view-car-tuning/view-car-tuning.component').then(
             (m) => m.ViewCarTuningComponent,

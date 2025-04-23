@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VehicleImage } from '../../../models/vehicle.model';
@@ -12,7 +20,7 @@ import { LoadingButtonComponent } from '../../loading-button/loading-button.comp
   templateUrl: './specific-settings.component.html',
   styleUrls: ['./specific-settings.component.css'],
 })
-export class SpecificSettingsComponent {
+export class SpecificSettingsComponent implements OnChanges {
   @Input() selectedVehicle!: VehicleImage;
   @Input() isReadOnly = false;
   @Input() settings?: SpecificSettings;
@@ -46,10 +54,8 @@ export class SpecificSettingsComponent {
 
   isLoading = false;
 
-  toggleEditMode() {
-    this.isReadOnly = !this.isReadOnly;
-    if (!this.isReadOnly && this.settings) {
-      // When entering edit mode, create a copy of the input settings
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isReadOnly'] && !this.isReadOnly && this.settings) {
       this._settings = { ...this.settings };
     }
   }

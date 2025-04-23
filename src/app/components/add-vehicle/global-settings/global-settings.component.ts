@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VehicleImage } from '../../../models/vehicle.model';
@@ -10,14 +19,17 @@ import { GlobalSettings } from '../../../models/settings.model';
   imports: [CommonModule, FormsModule],
   templateUrl: './global-settings.component.html',
   styleUrls: ['./global-settings.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GlobalSettingsComponent {
+export class GlobalSettingsComponent implements OnChanges {
   @Input() selectedVehicle!: VehicleImage;
   @Input() isReadOnly = false;
   @Input() settings?: GlobalSettings;
   @Output() settingsChange = new EventEmitter<GlobalSettings>();
   @Output() back = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();
+
+  constructor(private cdr: ChangeDetectorRef) {}
 
   private _settings: GlobalSettings = {
     abs: 0,
@@ -33,11 +45,10 @@ export class GlobalSettingsComponent {
   minValue = -10;
   maxValue = 10;
 
-  toggleEditMode() {
-    this.isReadOnly = !this.isReadOnly;
-    if (!this.isReadOnly && this.settings) {
-      // When entering edit mode, create a copy of the input settings
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isReadOnly'] && !this.isReadOnly && this.settings) {
       this._settings = { ...this.settings };
+      this.cdr.markForCheck();
     }
   }
 

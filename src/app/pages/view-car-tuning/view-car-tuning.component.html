@@ -1,4 +1,10 @@
 <div class="p-3 sm:p-6">
+  @if (error) {
+    <div class="bg-red-500 text-white p-4 rounded-lg mb-6">
+      {{ error }}
+    </div>
+  }
+
   @if (isLoadingSettings || isSavingSettings) {
     <div class="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
       <div class="flex justify-center items-center h-64">
@@ -16,7 +22,13 @@
     <div
       class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0"
     >
-      <h1 class="text-lg sm:text-xl font-bold text-yellow-400">Update Vehicle Tuning</h1>
+      <div class="flex flex-col">
+        <h1 class="text-lg sm:text-xl font-bold text-yellow-400">Update Vehicle Tuning</h1>
+        @if (vehicleImagesName) {
+          <h2 class="text-lg font-bold text-yellow-400">{{ vehicleImagesName }}</h2>
+        }
+      </div>
+
       <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
         <button
           (click)="toggleEditMode()"
